@@ -11,7 +11,79 @@ fail() {
   exit 1
 }
 
-tool="${FEATURE_OPTION_TOOL:-copilot}"
+install_packages() {
+  if command -v apt-get >/dev/null 2>&1; then
+    export DEBIAN_FRONTEND=noninteractive
+    apt-get update -y
+    apt-get install -y --no-install-recommends "$@"
+    rm -rf /var/lib/apt/lists/*
+    return
+  fi
+
+  if command -v apk >/dev/null 2>&1; then
+    apk add --no-cache "$@"
+    return
+  fi
+
+  if command -v dnf >/dev/null 2>&1; then
+    dnf install -y "$@"
+    return
+  fi
+
+  if command -v microdnf >/dev/null 2>&1; then
+    microdnf install -y "$@"
+    return
+  fi
+
+  if command -v yum >/dev/null 2>&1; then
+    yum install -y "$@"
+    return
+  fi
+
+  if command -v zypper >/dev/null 2>&1; then
+    zypper --non-interactive install --no-recommends "$@"
+    return
+  fi
+
+  fail "Missing package manager support to install dependencies: $*"
+}
+
+ensure_prerequisites() {
+  missing=""
+
+  if ! command -v unzip >/dev/null 2>&1; then
+    missing="${missing} unzip"
+  fi
+
+  if ! command -v curl >/dev/null 2>&1 && ! command -v wget >/dev/null 2>&1; then
+    missing="${missing} curl"
+  fi
+
+  # Minimal images may lack a CA bundle required for HTTPS downloads.
+  if [ ! -f /etc/ssl/certs/ca-certificates.crt ]; then
+    missing="${missing} ca-certificates"
+  fi
+
+  # Trim leading spaces for cleaner logs and checks.
+  missing="$(echo "$missing" | sed 's/^ *//')"
+
+  [ -n "$missing" ] || return 0
+
+  if [ "$(id -u)" -ne 0 ]; then
+    fail "Missing dependencies: $missing. Rebuild as root or preinstall them in the base image."
+  fi
+
+  log "Installing missing dependencies:$missing"
+  install_packages $missing
+
+  command -v unzip >/dev/null 2>&1 || fail "Dependency installation failed: unzip is still missing"
+  command -v curl >/dev/null 2>&1 || command -v wget >/dev/null 2>&1 || fail "Dependency installation failed: curl/wget are still missing"
+  [ -f /etc/ssl/certs/ca-certificates.crt ] || fail "Dependency installation failed: CA certificates are still missing"
+}
+
+# Dev Container Features export options as uppercase env vars (e.g. TOOL).
+# Keep FEATURE_OPTION_TOOL as a compatibility fallback.
+tool="${TOOL:-${FEATURE_OPTION_TOOL:-auto}}"
 
 case "$tool" in
   "")
@@ -22,13 +94,7 @@ case "$tool" in
     ;;
 esac
 
-if ! command -v unzip >/dev/null 2>&1; then
-  fail "Missing dependency: unzip"
-fi
-
-if ! command -v curl >/dev/null 2>&1 && ! command -v wget >/dev/null 2>&1; then
-  fail "Missing dependency: curl or wget"
-fi
+ensure_prerequisites
 
 marker_dir="/usr/local/share/devcontainer-features"
 
@@ -84,17 +150,30 @@ log "Running convert.sh..."
   ./scripts/convert.sh
 )
 
-log "Running install.sh --tool $tool..."
+if [ "$tool" = "auto" ]; then
+  log "Running install.sh --no-interactive --parallel (auto tool detection)..."
+else
+  log "Running install.sh --tool $tool --no-interactive..."
+fi
+
 if [ "$(id -u)" -eq 0 ] && [ "$target_user" != "root" ] && id "$target_user" >/dev/null 2>&1; then
   log "Installing for user '$target_user' (HOME=$target_home)..."
   chown -R "$target_user":"$target_user" "$tmp_dir"
   chmod -R u+rwX,go+rX "$tmp_dir"
-  su - "$target_user" -c "cd '$repo_dir' && HOME='$target_home' ./scripts/install.sh --tool '$tool' --no-interactive"
+  if [ "$tool" = "auto" ]; then
+    su - "$target_user" -c "cd '$repo_dir' && HOME='$target_home' ./scripts/install.sh --no-interactive --parallel"
+  else
+    su - "$target_user" -c "cd '$repo_dir' && HOME='$target_home' ./scripts/install.sh --tool '$tool' --no-interactive"
+  fi
 else
   log "Installing for current user '$(id -un)' (HOME=${HOME:-unknown})..."
   (
     cd "$repo_dir"
-    ./scripts/install.sh --tool "$tool" --no-interactive
+    if [ "$tool" = "auto" ]; then
+      ./scripts/install.sh --no-interactive --parallel
+    else
+      ./scripts/install.sh --tool "$tool" --no-interactive
+    fi
   )
 fi
 

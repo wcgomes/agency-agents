@@ -2,13 +2,13 @@
   "id": "agency-agents",
   "version": "0.1.0",
   "name": "Agency Agents",
-  "description": "Downloads agency-agents as ZIP and runs convert/install for a selected tool.",
+  "description": "Downloads agency-agents as ZIP and runs convert/install with auto-detection by default.",
   "documentationURL": "https://github.com/msitarzewski/agency-agents",
   "options": {
     "tool": {
       "type": "string",
-      "default": "copilot",
-      "description": "Tool name passed to ./scripts/install.sh --tool <tool>."
+      "default": "auto",
+      "description": "Tool name passed to ./scripts/install.sh --tool <tool>. Use 'auto' for --parallel auto-detection."
     }
   },
   "installsAfter": [
