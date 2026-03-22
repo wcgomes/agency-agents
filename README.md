@@ -1,6 +1,6 @@
-# agency-agents Dev Container Feature
+# agency-agents - Dev Container Feature
 
-This repository provides a [dev container Feature](https://containers.dev/implementors/features/) that automates the installation of [agency-agents](https://github.com/msitarzewski/agency-agents) — a collection of AI coding agents — into your dev container. By default it configures them for **GitHub Copilot**, but any tool supported by the upstream project can be selected.
+This repository provides a [dev container Feature](https://containers.dev/implementors/features/) that automates the installation of [agency-agents](https://github.com/msitarzewski/agency-agents) — a collection of AI coding agents — into your dev container. By default it auto-detects available tools and installs in parallel, but you can still force a specific tool supported by the upstream project.
 
 The feature follows the [dev container Feature distribution specification](https://containers.dev/implementors/features-distribution/) and is hosted on GitHub Container Registry (GHCR).
 
@@ -10,7 +10,7 @@ Adds the [msitarzewski/agency-agents](https://github.com/msitarzewski/agency-age
 
 1. Downloads the upstream repository as a ZIP archive.
 2. Runs `scripts/convert.sh` to prepare the agents.
-3. Runs `scripts/install.sh --tool <tool> --no-interactive` for the selected tool.
+3. Runs `scripts/install.sh --no-interactive --parallel` when `tool=auto` (default), or `scripts/install.sh --tool <tool> --no-interactive` for explicit tool mode.
 
 ### Usage
 
@@ -23,7 +23,7 @@ Adds the [msitarzewski/agency-agents](https://github.com/msitarzewski/agency-age
 }
 ```
 
-To install for a tool other than Copilot, pass the `tool` option:
+To install for a specific tool, pass the `tool` option:
 
 ```jsonc
 {
@@ -40,7 +40,7 @@ To install for a tool other than Copilot, pass the `tool` option:
 
 | Option | Type   | Default    | Description                                                         |
 |--------|--------|------------|---------------------------------------------------------------------|
-| `tool` | string | `copilot`  | Tool name passed to `install.sh --tool <tool>` (e.g. `copilot`, `cursor`). |
+| `tool` | string | `auto`     | `auto` runs `install.sh --no-interactive --parallel`; otherwise uses `--tool <tool>` (e.g. `copilot`, `cursor`). |
 
 ## Repo and Feature Structure
 
@@ -60,7 +60,7 @@ An [implementing tool](https://containers.dev/supporting#tools) will composite [
 
 All available options for a Feature should be declared in the `devcontainer-feature.json`.  The syntax for the `options` property can be found in the [devcontainer Feature json properties reference](https://containers.dev/implementors/features/#devcontainer-feature-json-properties).
 
-For example, the `agency-agents` feature exposes a `tool` string option.  If no option is provided in a user's `devcontainer.json`, the value defaults to `copilot`.
+For example, the `agency-agents` feature exposes a `tool` string option.  If no option is provided in a user's `devcontainer.json`, the value defaults to `auto`.
 
 ```jsonc
 {
@@ -68,8 +68,8 @@ For example, the `agency-agents` feature exposes a `tool` string option.  If no 
     "options": {
         "tool": {
             "type": "string",
-            "default": "copilot",
-            "description": "Tool name passed to ./scripts/install.sh --tool <tool>."
+            "default": "auto",
+            "description": "Tool name passed to ./scripts/install.sh --tool <tool>. Use 'auto' for --parallel auto-detection."
         }
     }
 }
@@ -80,7 +80,7 @@ Options are exported as Feature-scoped environment variables.  The option name i
 ```bash
 #!/bin/sh
 
-tool="${FEATURE_OPTION_TOOL:-copilot}"
+tool="${TOOL:-auto}"
 
 ...
 ```
