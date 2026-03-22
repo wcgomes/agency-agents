@@ -1,0 +1,16 @@
+{
+    "default_copilot": {
+        "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+        "features": {
+            "agency-agents": {}
+        }
+    },
+    "explicit_copilot": {
+        "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+        "features": {
+            "agency-agents": {
+                "tool": "copilot"
+            }
+        }
+    }
+}
