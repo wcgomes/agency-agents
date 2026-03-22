@@ -84,6 +84,7 @@ ensure_prerequisites() {
 # Dev Container Features export options as uppercase env vars (e.g. TOOL).
 # Keep FEATURE_OPTION_TOOL as a compatibility fallback.
 tool="${TOOL:-${FEATURE_OPTION_TOOL:-auto}}"
+create_agentsmd="${CREATE_AGENTSMD:-${FEATURE_OPTION_CREATE_AGENTSMD:-false}}"
 
 case "$tool" in
   "")
@@ -91,6 +92,14 @@ case "$tool" in
     ;;
   *[!a-zA-Z0-9_-]*)
     fail "Option 'tool' contains invalid characters: '$tool'."
+    ;;
+esac
+
+case "$create_agentsmd" in
+  true|false)
+    ;;
+  *)
+    fail "Option 'create-agentsmd' must be 'true' or 'false'. Got: '$create_agentsmd'."
     ;;
 esac
 
@@ -104,8 +113,11 @@ if [ -z "$target_home" ]; then
   target_home="/home/$target_user"
 fi
 
-# v2 marker forces one rerun for users that already installed with old root-only behavior.
-marker_file="$marker_dir/agency-agents-v2-${tool}-${target_user}.done"
+# v3 marker includes create-agentsmd so config changes trigger a rerun.
+marker_file="$marker_dir/agency-agents-v3-${tool}-${create_agentsmd}-${target_user}.done"
+on_create_helper_src="$(dirname "$0")/on-create.sh"
+on_create_helper_dst="$marker_dir/agency-agents-on-create.sh"
+create_agentsmd_marker="$marker_dir/agency-agents-create-agentsmd.enabled"
 
 if [ -f "$marker_file" ]; then
   log "Installation already completed for tool '$tool'. Skipping."
@@ -113,6 +125,16 @@ if [ -f "$marker_file" ]; then
 fi
 
 mkdir -p "$marker_dir"
+
+[ -f "$on_create_helper_src" ] || fail "Missing script: on-create.sh"
+cp "$on_create_helper_src" "$on_create_helper_dst"
+chmod 0755 "$on_create_helper_dst"
+
+if [ "$create_agentsmd" = "true" ]; then
+  touch "$create_agentsmd_marker"
+else
+  rm -f "$create_agentsmd_marker"
+fi
 
 tmp_dir="$(mktemp -d /tmp/agency-agents-XXXXXX)"
 cleanup() {

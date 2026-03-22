@@ -10,6 +10,8 @@ Adds the [msitarzewski/agency-agents](https://github.com/msitarzewski/agency-age
 2. Runs `scripts/convert.sh` to prepare the agents.
 3. Runs `scripts/install.sh --no-interactive --parallel` when `tool=auto` (default), or `scripts/install.sh --tool <tool> --no-interactive` for explicit tool mode.
 
+If `create-agentsmd=true`, the feature also writes `AGENTS.md` from [msitarzewski/AGENT-ZERO](https://github.com/msitarzewski/AGENT-ZERO) into the workspace root during `onCreateCommand`, always overwriting the file.
+
 ### Usage
 
 ```jsonc
@@ -34,15 +36,34 @@ To install for a specific tool, pass the `tool` option:
 }
 ```
 
+To also create `AGENTS.md` in the workspace root:
+
+```jsonc
+{
+    "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+    "features": {
+        "ghcr.io/YOUR_GITHUB_USER/agency-agents/agency-agents:1": {
+            "tool": "copilot",
+            "create-agentsmd": true
+        }
+    }
+}
+```
+
 ### Options
 
 | Option | Type   | Default    | Description                                                         |
 |--------|--------|------------|---------------------------------------------------------------------|
 | `tool` | string | `auto`     | `auto` runs `install.sh --no-interactive --parallel`; otherwise uses `--tool <tool>` (e.g. `copilot`, `cursor`). |
+| `create-agentsmd` | boolean | `false` | If `true`, writes `AGENTS.md` from AGENT-ZERO to the workspace root during `onCreateCommand` (always overwrites). |
 
 ### Credits
 
-The agents installed by this feature come from the [msitarzewski/agency-agents](https://github.com/msitarzewski/agency-agents) repository. All credit for the agent definitions, `convert.sh`, and `install.sh` scripts belongs to the upstream project and its contributors. This repository only wraps that work as a dev container Feature for easier, reproducible installation inside dev containers.
+The agents installed by this feature come from the [msitarzewski/agency-agents](https://github.com/msitarzewski/agency-agents) repository. All credit for the agent definitions, `convert.sh`, and `install.sh` scripts belongs to the upstream project and its contributors.
+
+When `create-agentsmd=true`, the `AGENTS.md` file is sourced from [msitarzewski/AGENT-ZERO](https://github.com/msitarzewski/AGENT-ZERO). Credit for that specification and content belongs to the AGENT-ZERO project and its contributors.
+
+This repository only wraps that upstream work as a dev container Feature for easier, reproducible installation inside dev containers.
 
 ## Repo and Feature Structure
 
@@ -72,6 +93,11 @@ For example, the `agency-agents` feature exposes a `tool` string option.  If no 
             "type": "string",
             "default": "auto",
             "description": "Tool name passed to ./scripts/install.sh --tool <tool>. Use 'auto' for --parallel auto-detection."
+        },
+        "create-agentsmd": {
+            "type": "boolean",
+            "default": false,
+            "description": "If true, writes AGENTS.md from AGENT-ZERO to the workspace root during onCreateCommand (always overwrites)."
         }
     }
 }
