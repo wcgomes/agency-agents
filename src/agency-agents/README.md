@@ -16,13 +16,7 @@ Downloads agency-agents from msitarzewski repos and runs convert/install with au
 | Options Id | Description | Type | Default Value |
 |-----|-----|-----|-----|
 | tool | Tool name passed to ./scripts/install.sh --tool <tool>. Use 'auto' for --parallel auto-detection. | string | auto |
-| create-agentsmd | If true, writes AGENTS.md from AGENT-ZERO to the workspace root during onCreateCommand (always overwrites). | boolean | false |
-
-## Credits
-
-The agents installed by this feature come from [msitarzewski/agency-agents](https://github.com/msitarzewski/agency-agents).
-
-When `create-agentsmd=true`, the `AGENTS.md` file is sourced from [msitarzewski/AGENT-ZERO](https://github.com/msitarzewski/AGENT-ZERO).
+| create-agentsmd | If true, writes AGENTS.md from msitarzewski/AGENT-ZERO to the workspace root on container creation (always overwrites). | boolean | false |
 
 
 
