@@ -1,8 +1,6 @@
-# agency-agents - Dev Container Feature
+# Dev Container Features
 
-This repository provides a [dev container Feature](https://containers.dev/implementors/features/) that automates the installation of [agency-agents](https://github.com/msitarzewski/agency-agents) — a collection of AI coding agents — into your dev container. By default it auto-detects available tools and installs in parallel, but you can still force a specific tool supported by the upstream project.
-
-The feature follows the [dev container Feature distribution specification](https://containers.dev/implementors/features-distribution/) and is hosted on GitHub Container Registry (GHCR).
+This repository provides a collection of [dev container Features](https://containers.dev/implementors/features/) for use in dev containers and GitHub Codespaces. Each Feature is independently versioned and published to GitHub Container Registry (GHCR) following the [dev container Feature distribution specification](https://containers.dev/implementors/features-distribution/).
 
 ## Feature: `agency-agents`
 
@@ -41,6 +39,10 @@ To install for a specific tool, pass the `tool` option:
 | Option | Type   | Default    | Description                                                         |
 |--------|--------|------------|---------------------------------------------------------------------|
 | `tool` | string | `auto`     | `auto` runs `install.sh --no-interactive --parallel`; otherwise uses `--tool <tool>` (e.g. `copilot`, `cursor`). |
+
+### Credits
+
+The agents installed by this feature come from the [msitarzewski/agency-agents](https://github.com/msitarzewski/agency-agents) repository. All credit for the agent definitions, `convert.sh`, and `install.sh` scripts belongs to the upstream project and its contributors. This repository only wraps that work as a dev container Feature for easier, reproducible installation inside dev containers.
 
 ## Repo and Feature Structure
 
@@ -166,6 +168,4 @@ An example `devcontainer.json` can be found below.
 }
 ```
 
-## Credits
 
-The agents installed by this feature come from the [msitarzewski/agency-agents](https://github.com/msitarzewski/agency-agents) repository. All credit for the agent definitions, `convert.sh`, and `install.sh` scripts belongs to the upstream project and its contributors. This repository only wraps that work as a dev container Feature for easier, reproducible installation inside dev containers.
