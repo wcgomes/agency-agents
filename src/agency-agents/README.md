@@ -7,7 +7,7 @@ Downloads agency-agents from msitarzewski repos and runs convert/install with au
 
 ```json
 "features": {
-    "ghcr.io/wcgomes/agency-agents/agency-agents:0": {}
+    "ghcr.io/wcgomes/devcontainer-features/agency-agents:0": {}
 }
 ```
 
@@ -21,4 +21,4 @@ Downloads agency-agents from msitarzewski repos and runs convert/install with au
 
 ---
 
-_Note: This file was auto-generated from the [devcontainer-feature.json](https://github.com/wcgomes/agency-agents/blob/main/src/agency-agents/devcontainer-feature.json).  Add additional notes to a `NOTES.md`._
+_Note: This file was auto-generated from the [devcontainer-feature.json](https://github.com/wcgomes/devcontainer-features/blob/main/src/agency-agents/devcontainer-feature.json).  Add additional notes to a `NOTES.md`._
