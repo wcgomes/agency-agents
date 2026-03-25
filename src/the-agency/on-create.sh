@@ -80,6 +80,13 @@ cleanup() {
 }
 trap cleanup EXIT
 
+# Copy AGENT_ROUTING.md from shared location to user's home if it exists
+marker_dir="/usr/local/share/devcontainer-features"
+routing_template_file="$marker_dir/the-agency-AGENT_ROUTING.md"
+if [ -f "$routing_template_file" ]; then
+  cp "$routing_template_file" "$global_routing_file"
+fi
+
 # Check if use-agent-zero is enabled
 use_agent_zero_enabled=false
 if [ -f "$enabled_marker" ]; then
