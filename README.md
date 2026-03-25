@@ -10,7 +10,7 @@ Adds the [msitarzewski/agency-agents](https://github.com/msitarzewski/agency-age
 2. Runs `scripts/convert.sh` to prepare the agents.
 3. Runs `scripts/install.sh --no-interactive --parallel` when `tool=auto` (default), or `scripts/install.sh --tool <tool> --no-interactive` for explicit tool mode.
 
-If `use-agent-zero=true`, the feature syncs `AGENT-ZERO` to `~/.agents/AGENT-ZERO.md` and `AGENT_ROUTING.md` to `~/.agents/AGENT_ROUTING.md` during `onCreateCommand`. Workspace `AGENTS.md` is created if missing, or updated in-place by replacing only the-agency managed reference blocks.
+If `use-agent-zero=true`, the feature syncs `AGENT-ZERO` to `~/.the-agency/AGENT-ZERO.md` and `AGENT_ROUTING.md` to `~/.the-agency/AGENT_ROUTING.md` during `onCreateCommand`. Workspace `AGENTS.md` is created if missing, or updated in-place by replacing only the-agency managed reference blocks.
 
 ### Usage
 
@@ -55,13 +55,13 @@ To also create `AGENTS.md` in the workspace root:
 | Option | Type   | Default    | Description                                                         |
 |--------|--------|------------|---------------------------------------------------------------------|
 | `tool` | string | `auto`     | `auto` runs `install.sh --no-interactive --parallel`; otherwise uses `--tool <tool>` (e.g. `copilot`, `cursor`). |
-| `use-agent-zero` | boolean | `false` | If `true`, syncs `AGENT-ZERO` to `~/.agents/AGENT-ZERO.md` and `AGENT_ROUTING.md` to `~/.agents/AGENT_ROUTING.md` during `onCreateCommand`. Workspace `AGENTS.md` is created if missing, or updated in-place by replacing only the-agency managed reference blocks. |
+| `use-agent-zero` | boolean | `false` | If `true`, syncs `AGENT-ZERO` to `~/.the-agency/AGENT-ZERO.md` and `AGENT_ROUTING.md` to `~/.the-agency/AGENT_ROUTING.md` during `onCreateCommand`. Workspace `AGENTS.md` is created if missing, or updated in-place by replacing only the-agency managed reference blocks. |
 
 ### Credits
 
 The agents installed by this feature come from the [msitarzewski/agency-agents](https://github.com/msitarzewski/agency-agents) repository. All credit for the agent definitions, `convert.sh`, and `install.sh` scripts belongs to the upstream project and its contributors.
 
-When `use-agent-zero=true`, `~/.agents/AGENT-ZERO.md` is sourced from [msitarzewski/AGENT-ZERO](https://github.com/msitarzewski/AGENT-ZERO), and `~/.agents/AGENT_ROUTING.md` is installed by this feature. Credit for AGENT-ZERO specification belongs to the AGENT-ZERO project and its contributors.
+When `use-agent-zero=true`, `~/.the-agency/AGENT-ZERO.md` is sourced from [msitarzewski/AGENT-ZERO](https://github.com/msitarzewski/AGENT-ZERO), and `~/.the-agency/AGENT_ROUTING.md` is installed by this feature. Credit for AGENT-ZERO specification belongs to the AGENT-ZERO project and its contributors.
 
 This repository only wraps that upstream work as a dev container Feature for easier, reproducible installation inside dev containers.
 
@@ -97,7 +97,7 @@ For example, the `the-agency` feature exposes a `tool` string option.  If no opt
         "use-agent-zero": {
             "type": "boolean",
             "default": false,
-            "description": "If true, syncs AGENT-ZERO to ~/.agents/AGENT-ZERO.md and AGENT_ROUTING.md to ~/.agents/AGENT_ROUTING.md during onCreateCommand. Workspace AGENTS.md is created if missing, or updated in-place by replacing only the-agency managed reference blocks."
+            "description": "If true, syncs AGENT-ZERO to ~/.the-agency/AGENT-ZERO.md and AGENT_ROUTING.md to ~/.the-agency/AGENT_ROUTING.md during onCreateCommand. Workspace AGENTS.md is created if missing, or updated in-place by replacing only the-agency managed reference blocks."
         }
     }
 }

@@ -4,7 +4,7 @@ set -e
 source dev-container-features-test-lib
 
 check "global AGENT_ROUTING.md exists" bash -c \
-    "test -s \"$HOME/.agents/AGENT_ROUTING.md\""
+    "test -s \"$HOME/.the-agency/AGENT_ROUTING.md\""
 
 check "on-create creates AGENTS.md with routing rules only (when disabled)" bash -c '
     # Simulate use-agent-zero=false by ensuring the marker does NOT exist
@@ -18,9 +18,9 @@ check "on-create creates AGENTS.md with routing rules only (when disabled)" bash
     
     test -s "$tmp_ws/AGENTS.md"
     grep -q "Agent Routing Rules (Mandatory)" "$tmp_ws/AGENTS.md"
-    grep -q "~/.agents/AGENT_ROUTING.md" "$tmp_ws/AGENTS.md"
+    grep -q "~/.the-agency/AGENT_ROUTING.md" "$tmp_ws/AGENTS.md"
     ! grep -q "Canonical Agent Guide (Mandatory)" "$tmp_ws/AGENTS.md"
-    ! grep -q "~/.agents/AGENT-ZERO.md" "$tmp_ws/AGENTS.md"
+    ! grep -q "~/.the-agency/AGENT-ZERO.md" "$tmp_ws/AGENTS.md"
 '
 
 check "on-create updates existing AGENTS.md with routing rules only (when disabled)" bash -c '

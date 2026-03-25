@@ -10,7 +10,7 @@ check "on-create helper exists and is executable" bash -c \
     "test -x /usr/local/share/devcontainer-features/the-agency-on-create.sh"
 
 check "global AGENT_ROUTING.md exists" bash -c \
-    "test -s \"$HOME/.agents/AGENT_ROUTING.md\""
+    "test -s \"$HOME/.the-agency/AGENT_ROUTING.md\""
 
 check "on-create creates AGENTS.md in workspace when missing" bash -c '
     tmp_ws="$(mktemp -d)"
@@ -47,21 +47,21 @@ check "on-create references global AGENT_ROUTING.md in AGENTS.md" bash -c '
     tmp_ws="$(mktemp -d)"
     cd "$tmp_ws"
     /usr/local/share/devcontainer-features/the-agency-on-create.sh
-    grep -q "~/.agents/AGENT_ROUTING.md" "$tmp_ws/AGENTS.md"
+    grep -q "~/.the-agency/AGENT_ROUTING.md" "$tmp_ws/AGENTS.md"
 '
 
 check "on-create writes global AGENT-ZERO.md" bash -c '
     tmp_ws="$(mktemp -d)"
     cd "$tmp_ws"
     /usr/local/share/devcontainer-features/the-agency-on-create.sh
-    test -s "$HOME/.agents/AGENT-ZERO.md"
+    test -s "$HOME/.the-agency/AGENT-ZERO.md"
 '
 
 check "on-create references global AGENT-ZERO.md in AGENTS.md" bash -c '
     tmp_ws="$(mktemp -d)"
     cd "$tmp_ws"
     /usr/local/share/devcontainer-features/the-agency-on-create.sh
-    grep -q "~/.agents/AGENT-ZERO.md" "$tmp_ws/AGENTS.md"
+    grep -q "~/.the-agency/AGENT-ZERO.md" "$tmp_ws/AGENTS.md"
 '
 
 check "on-create injects agent routing rules header into AGENTS.md" bash -c '

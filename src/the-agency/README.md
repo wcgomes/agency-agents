@@ -16,7 +16,7 @@ Downloads agency-agents from msitarzewski repos and runs convert/install with au
 | Options Id | Description | Type | Default Value |
 |-----|-----|-----|-----|
 | tool | Tool name passed to ./scripts/install.sh --tool <tool>. Use 'auto' for --parallel auto-detection. | string | auto |
-| use-agent-zero | If true, includes Canonical Agent Guide section in AGENTS.md and syncs AGENT-ZERO.md globally. Agent routing rules are always included in AGENTS.md (created if missing, or updated in-place). AGENT_ROUTING.md is always installed to ~/.agents/. | boolean | false |
+| use-agent-zero | If true, includes Canonical Agent Guide section in AGENTS.md and syncs AGENT-ZERO.md globally. Agent routing rules are always included in AGENTS.md (created if missing, or updated in-place). AGENT_ROUTING.md is always installed to ~/.the-agency/. | boolean | false |
 
 
 
