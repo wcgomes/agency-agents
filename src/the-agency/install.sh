@@ -118,8 +118,7 @@ marker_file="$marker_dir/the-agency-v3-${tool}-${use_agent_zero}-${target_user}.
 on_create_helper_src="$(dirname "$0")/on-create.sh"
 on_create_helper_dst="$marker_dir/the-agency-on-create.sh"
 routing_template_src="$(dirname "$0")/AGENT_ROUTING.md"
-global_agents_dir="${HOME}/.agents"
-routing_global_dst="$global_agents_dir/AGENT_ROUTING.md"
+routing_global_dst="$marker_dir/the-agency-AGENT_ROUTING.md"
 use_agent_zero_marker="$marker_dir/the-agency-use-agent-zero.enabled"
 
 if [ -f "$marker_file" ]; then
@@ -128,7 +127,6 @@ if [ -f "$marker_file" ]; then
 fi
 
 mkdir -p "$marker_dir"
-mkdir -p "$global_agents_dir"
 
 [ -f "$on_create_helper_src" ] || fail "Missing script: on-create.sh"
 [ -f "$routing_template_src" ] || fail "Missing file: AGENT_ROUTING.md"
@@ -136,7 +134,7 @@ cp "$on_create_helper_src" "$on_create_helper_dst"
 cp "$routing_template_src" "$routing_global_dst"
 chmod 0755 "$on_create_helper_dst"
 chmod 0644 "$routing_global_dst"
-log "AGENT_ROUTING.md installed to global: $routing_global_dst"
+log "AGENT_ROUTING.md template installed to: $routing_global_dst"
 
 if [ "$use_agent_zero" = "true" ]; then
   touch "$use_agent_zero_marker"
