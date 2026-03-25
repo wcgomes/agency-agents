@@ -13,7 +13,7 @@
     "use-agent-zero": {
       "type": "boolean",
       "default": false,
-      "description": "If true, includes Canonical Agent Guide section in AGENTS.md and syncs AGENT-ZERO.md globally."
+      "description": "If true, includes Canonical Agent Guide section in AGENTS.md and syncs AGENT-ZERO.md to ~/.the-agency/AGENT-ZERO.md. AGENT_ROUTING.md is synced to ~/.the-agency/AGENT_ROUTING.md."
     }
   },
   "onCreateCommand": "/usr/local/share/devcontainer-features/the-agency-on-create.sh",

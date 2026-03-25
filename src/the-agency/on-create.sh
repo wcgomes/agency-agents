@@ -9,9 +9,9 @@ log() {
 marker_dir="/usr/local/share/devcontainer-features"
 enabled_marker="$marker_dir/the-agency-use-agent-zero.enabled"
 output_file="$PWD/AGENTS.md"
-global_agents_dir="${HOME}/.agents"
-global_routing_file="${HOME}/.agents/AGENT_ROUTING.md"
-global_agent_zero_file="${HOME}/.agents/AGENT-ZERO.md"
+global_agents_dir="${HOME}/.the-agency"
+global_routing_file="${HOME}/.the-agency/AGENT_ROUTING.md"
+global_agent_zero_file="${HOME}/.the-agency/AGENT-ZERO.md"
 source_url="https://raw.githubusercontent.com/msitarzewski/AGENT-ZERO/main/AGENTS.md"
 
 write_workspace_agents_reference() {
@@ -100,14 +100,14 @@ fi
   if [ "$use_agent_zero_enabled" = true ]; then
     echo "# Canonical Agent Guide (Mandatory)"
     echo ""
-    echo "Use ~/.agents/AGENT-ZERO.md as the global AGENTS baseline before execution."
+    echo "Use ~/.the-agency/AGENT-ZERO.md as the global AGENTS baseline before execution."
     echo ""
   fi
   
   echo "# Agent Routing Rules (Mandatory)"
   echo ""
   echo "Before selecting a specialist agent, first classify the request by division."
-  echo "Then use ~/.agents/AGENT_ROUTING.md as the routing reference to choose the primary and fallback agent."
+  echo "Then use ~/.the-agency/AGENT_ROUTING.md as the routing reference to choose the primary and fallback agent."
   echo ""
   echo "<!-- the-agency-feature:workspace-references:end -->"
 } > "$references_block_file"
