@@ -3,11 +3,11 @@
 set -eu
 
 log() {
-  echo "[agency-agents-feature] $*"
+  echo "[the-agency-feature] $*"
 }
 
 fail() {
-  echo "[agency-agents-feature] ERROR: $*" >&2
+  echo "[the-agency-feature] ERROR: $*" >&2
   exit 1
 }
 
@@ -84,7 +84,7 @@ ensure_prerequisites() {
 # Dev Container Features export options as uppercase env vars (e.g. TOOL).
 # Keep FEATURE_OPTION_TOOL as a compatibility fallback.
 tool="${TOOL:-${FEATURE_OPTION_TOOL:-auto}}"
-create_agentsmd="${CREATE_AGENTSMD:-${FEATURE_OPTION_CREATE_AGENTSMD:-false}}"
+use_agent_zero="${USE_AGENT_ZERO:-${FEATURE_OPTION_USE_AGENT_ZERO:-false}}"
 
 case "$tool" in
   "")
@@ -95,11 +95,11 @@ case "$tool" in
     ;;
 esac
 
-case "$create_agentsmd" in
+case "$use_agent_zero" in
   true|false)
     ;;
   *)
-    fail "Option 'create-agentsmd' must be 'true' or 'false'. Got: '$create_agentsmd'."
+    fail "Option 'use-agent-zero' must be 'true' or 'false'. Got: '$use_agent_zero'."
     ;;
 esac
 
@@ -113,11 +113,14 @@ if [ -z "$target_home" ]; then
   target_home="/home/$target_user"
 fi
 
-# v3 marker includes create-agentsmd so config changes trigger a rerun.
-marker_file="$marker_dir/agency-agents-v3-${tool}-${create_agentsmd}-${target_user}.done"
+# v3 marker includes use-agent-zero so config changes trigger a rerun.
+marker_file="$marker_dir/the-agency-v3-${tool}-${use_agent_zero}-${target_user}.done"
 on_create_helper_src="$(dirname "$0")/on-create.sh"
-on_create_helper_dst="$marker_dir/agency-agents-on-create.sh"
-create_agentsmd_marker="$marker_dir/agency-agents-create-agentsmd.enabled"
+on_create_helper_dst="$marker_dir/the-agency-on-create.sh"
+routing_template_src="$(dirname "$0")/AGENT_ROUTING.md"
+global_agents_dir="${HOME}/.agents"
+routing_global_dst="$global_agents_dir/AGENT_ROUTING.md"
+use_agent_zero_marker="$marker_dir/the-agency-use-agent-zero.enabled"
 
 if [ -f "$marker_file" ]; then
   log "Installation already completed for tool '$tool'. Skipping."
@@ -125,18 +128,23 @@ if [ -f "$marker_file" ]; then
 fi
 
 mkdir -p "$marker_dir"
+mkdir -p "$global_agents_dir"
 
 [ -f "$on_create_helper_src" ] || fail "Missing script: on-create.sh"
+[ -f "$routing_template_src" ] || fail "Missing file: AGENT_ROUTING.md"
 cp "$on_create_helper_src" "$on_create_helper_dst"
+cp "$routing_template_src" "$routing_global_dst"
 chmod 0755 "$on_create_helper_dst"
+chmod 0644 "$routing_global_dst"
+log "AGENT_ROUTING.md installed to global: $routing_global_dst"
 
-if [ "$create_agentsmd" = "true" ]; then
-  touch "$create_agentsmd_marker"
+if [ "$use_agent_zero" = "true" ]; then
+  touch "$use_agent_zero_marker"
 else
-  rm -f "$create_agentsmd_marker"
+  rm -f "$use_agent_zero_marker"
 fi
 
-tmp_dir="$(mktemp -d /tmp/agency-agents-XXXXXX)"
+tmp_dir="$(mktemp -d /tmp/the-agency-XXXXXX)"
 cleanup() {
   rm -rf "$tmp_dir"
 }
