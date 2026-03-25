@@ -1,0 +1,23 @@
+{
+  "id": "the-agency",
+  "version": "0.1.0",
+  "name": "The Agency",
+  "description": "A complete AI agency at your fingertips - From frontend wizards to Reddit community ninjas, from whimsy injectors to reality checkers. Each agent is a specialized expert with personality, processes, and proven deliverables. Credits: https://github.com/msitarzewski/agency-agents.",
+  "documentationURL": "https://github.com/wcgomes/devcontainer-features?tab=readme-ov-file#feature-the-agency",
+  "options": {
+    "tool": {
+      "type": "string",
+      "default": "auto",
+      "description": "Tool name passed to ./scripts/install.sh --tool <tool>. Use 'auto' for --parallel auto-detection."
+    },
+    "use-agent-zero": {
+      "type": "boolean",
+      "default": false,
+      "description": "If true, includes Canonical Agent Guide section in AGENTS.md and syncs AGENT-ZERO.md globally."
+    }
+  },
+  "onCreateCommand": "/usr/local/share/devcontainer-features/the-agency-on-create.sh",
+  "installsAfter": [
+    "ghcr.io/devcontainers/features/common-utils"
+  ]
+}

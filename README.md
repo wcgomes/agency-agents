@@ -2,7 +2,7 @@
 
 This repository provides a collection of [dev container Features](https://containers.dev/implementors/features/) for use in dev containers and GitHub Codespaces. Each Feature is independently versioned and published to GitHub Container Registry (GHCR) following the [dev container Feature distribution specification](https://containers.dev/implementors/features-distribution/).
 
-## Feature: `agency-agents`
+## Feature: `the-agency`
 
 Adds the [msitarzewski/agency-agents](https://github.com/msitarzewski/agency-agents) agent set to your dev container. During the container build it:
 
@@ -10,7 +10,7 @@ Adds the [msitarzewski/agency-agents](https://github.com/msitarzewski/agency-age
 2. Runs `scripts/convert.sh` to prepare the agents.
 3. Runs `scripts/install.sh --no-interactive --parallel` when `tool=auto` (default), or `scripts/install.sh --tool <tool> --no-interactive` for explicit tool mode.
 
-If `create-agentsmd=true`, the feature also writes `AGENTS.md` from [msitarzewski/AGENT-ZERO](https://github.com/msitarzewski/AGENT-ZERO) into the workspace root during `onCreateCommand`, always overwriting the file.
+If `use-agent-zero=true`, the feature syncs `AGENT-ZERO` to `~/.agents/AGENT-ZERO.md` and `AGENT_ROUTING.md` to `~/.agents/AGENT_ROUTING.md` during `onCreateCommand`. Workspace `AGENTS.md` is created if missing, or updated in-place by replacing only the-agency managed reference blocks.
 
 ### Usage
 
@@ -18,7 +18,7 @@ If `create-agentsmd=true`, the feature also writes `AGENTS.md` from [msitarzewsk
 {
     "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
     "features": {
-        "ghcr.io/YOUR_GITHUB_USER/agency-agents/agency-agents:1": {}
+        "ghcr.io/YOUR_GITHUB_USER/the-agency/the-agency:1": {}
     }
 }
 ```
@@ -29,7 +29,7 @@ To install for a specific tool, pass the `tool` option:
 {
     "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
     "features": {
-        "ghcr.io/YOUR_GITHUB_USER/agency-agents/agency-agents:1": {
+        "ghcr.io/YOUR_GITHUB_USER/the-agency/the-agency:1": {
             "tool": "cursor"
         }
     }
@@ -42,9 +42,9 @@ To also create `AGENTS.md` in the workspace root:
 {
     "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
     "features": {
-        "ghcr.io/YOUR_GITHUB_USER/agency-agents/agency-agents:1": {
+        "ghcr.io/YOUR_GITHUB_USER/the-agency/the-agency:1": {
             "tool": "copilot",
-            "create-agentsmd": true
+            "use-agent-zero": true
         }
     }
 }
@@ -55,13 +55,13 @@ To also create `AGENTS.md` in the workspace root:
 | Option | Type   | Default    | Description                                                         |
 |--------|--------|------------|---------------------------------------------------------------------|
 | `tool` | string | `auto`     | `auto` runs `install.sh --no-interactive --parallel`; otherwise uses `--tool <tool>` (e.g. `copilot`, `cursor`). |
-| `create-agentsmd` | boolean | `false` | If `true`, writes `AGENTS.md` from AGENT-ZERO to the workspace root during `onCreateCommand` (always overwrites). |
+| `use-agent-zero` | boolean | `false` | If `true`, syncs `AGENT-ZERO` to `~/.agents/AGENT-ZERO.md` and `AGENT_ROUTING.md` to `~/.agents/AGENT_ROUTING.md` during `onCreateCommand`. Workspace `AGENTS.md` is created if missing, or updated in-place by replacing only the-agency managed reference blocks. |
 
 ### Credits
 
 The agents installed by this feature come from the [msitarzewski/agency-agents](https://github.com/msitarzewski/agency-agents) repository. All credit for the agent definitions, `convert.sh`, and `install.sh` scripts belongs to the upstream project and its contributors.
 
-When `create-agentsmd=true`, the `AGENTS.md` file is sourced from [msitarzewski/AGENT-ZERO](https://github.com/msitarzewski/AGENT-ZERO). Credit for that specification and content belongs to the AGENT-ZERO project and its contributors.
+When `use-agent-zero=true`, `~/.agents/AGENT-ZERO.md` is sourced from [msitarzewski/AGENT-ZERO](https://github.com/msitarzewski/AGENT-ZERO), and `~/.agents/AGENT_ROUTING.md` is installed by this feature. Credit for AGENT-ZERO specification belongs to the AGENT-ZERO project and its contributors.
 
 This repository only wraps that upstream work as a dev container Feature for easier, reproducible installation inside dev containers.
 
@@ -71,7 +71,7 @@ Similar to the [`devcontainers/features`](https://github.com/devcontainers/featu
 
 ```
 ├── src
-│   ├── agency-agents
+│   ├── the-agency
 │   │   ├── devcontainer-feature.json
 │   │   └── install.sh
 ...
@@ -83,7 +83,7 @@ An [implementing tool](https://containers.dev/supporting#tools) will composite [
 
 All available options for a Feature should be declared in the `devcontainer-feature.json`.  The syntax for the `options` property can be found in the [devcontainer Feature json properties reference](https://containers.dev/implementors/features/#devcontainer-feature-json-properties).
 
-For example, the `agency-agents` feature exposes a `tool` string option.  If no option is provided in a user's `devcontainer.json`, the value defaults to `auto`.
+For example, the `the-agency` feature exposes a `tool` string option.  If no option is provided in a user's `devcontainer.json`, the value defaults to `auto`.
 
 ```jsonc
 {
@@ -94,10 +94,10 @@ For example, the `agency-agents` feature exposes a `tool` string option.  If no 
             "default": "auto",
             "description": "Tool name passed to ./scripts/install.sh --tool <tool>. Use 'auto' for --parallel auto-detection."
         },
-        "create-agentsmd": {
+        "use-agent-zero": {
             "type": "boolean",
             "default": false,
-            "description": "If true, writes AGENTS.md from AGENT-ZERO to the workspace root during onCreateCommand (always overwrites)."
+            "description": "If true, syncs AGENT-ZERO to ~/.agents/AGENT-ZERO.md and AGENT_ROUTING.md to ~/.agents/AGENT_ROUTING.md during onCreateCommand. Workspace AGENTS.md is created if missing, or updated in-place by replacing only the-agency managed reference blocks."
         }
     }
 }
@@ -134,12 +134,12 @@ This repo contains a **GitHub Action** [workflow](.github/workflows/release.yaml
 By default, each Feature will be prefixed with the `<owner>/<repo>` namespace.  For example, the Feature in this repository can be referenced in a `devcontainer.json` with:
 
 ```
-ghcr.io/<owner>/agency-agents/agency-agents:1
+ghcr.io/<owner>/the-agency/the-agency:1
 ```
 
-The provided GitHub Action will also publish a "metadata" package with just the namespace, eg: `ghcr.io/<owner>/agency-agents`.  This contains information useful for tools aiding in Feature discovery.
+The provided GitHub Action will also publish a "metadata" package with just the namespace, eg: `ghcr.io/<owner>/the-agency`.  This contains information useful for tools aiding in Feature discovery.
 
-`<owner>/agency-agents` is known as the feature collection namespace.
+`<owner>/the-agency` is known as the feature collection namespace.
 
 ### Marking Feature Public
 

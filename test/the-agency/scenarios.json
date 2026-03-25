@@ -2,13 +2,13 @@
     "default_auto": {
         "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
         "features": {
-            "agency-agents": {}
+            "the-agency": {}
         }
     },
     "explicit_copilot": {
         "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
         "features": {
-            "agency-agents": {
+            "the-agency": {
                 "tool": "copilot"
             }
         }
@@ -16,17 +16,17 @@
     "explicit_all": {
         "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
         "features": {
-            "agency-agents": {
+            "the-agency": {
                 "tool": "all"
             }
         }
     },
-    "create_agentsmd_enabled": {
+    "use_agent_zero_enabled": {
         "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
         "features": {
-            "agency-agents": {
+            "the-agency": {
                 "tool": "copilot",
-                "create-agentsmd": true
+                "use-agent-zero": true
             }
         }
     }
