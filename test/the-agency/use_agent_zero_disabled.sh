@@ -30,10 +30,10 @@ check "on-create updates existing AGENTS.md with routing rules only (when disabl
 
 Keep this user content.
 
-<!-- the-agency-feature:workspace-references:start -->
+<!-- the-agency:workspace-rules:start -->
 # Old content
 Old routing old canonical
-<!-- the-agency-feature:workspace-references:end -->
+<!-- the-agency:workspace-rules:end -->
 EOF
     cd "$tmp_ws"
     

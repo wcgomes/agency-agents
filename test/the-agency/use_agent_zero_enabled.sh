@@ -26,12 +26,12 @@ check "on-create upserts only feature blocks in existing AGENTS.md" bash -c '
 
 Keep this line untouched.
 
-<!-- the-agency-feature:workspace-references:start -->
+<!-- the-agency:workspace-rules:start -->
 # Old Canonical Header
 old canonical body
 # Old Routing Header
 old routing body
-<!-- the-agency-feature:workspace-references:end -->
+<!-- the-agency:workspace-rules:end -->
 EOF
     cd "$tmp_ws"
     /usr/local/share/devcontainer-features/the-agency-on-create.sh
