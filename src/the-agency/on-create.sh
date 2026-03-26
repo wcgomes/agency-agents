@@ -104,10 +104,9 @@ fi
     echo ""
   fi
   
-  echo "# Agent Routing Rules (Mandatory)"
+  echo "# How to Choose the Right Specialist Agent (Mandatory)"
   echo ""
-  echo "Before selecting a specialist agent, first classify the request by division."
-  echo "Then use ~/.the-agency/AGENT_ROUTING.md as the routing reference to choose the primary and fallback agent."
+  echo "Before starting any task, read ~/.the-agency/AGENT_ROUTING.md to understand how to classify divisions and choose the ideal specialist agent for the job."
   echo ""
   echo "<!-- the-agency-feature:workspace-references:end -->"
 } > "$references_block_file"
