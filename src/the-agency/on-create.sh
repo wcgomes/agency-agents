@@ -24,8 +24,8 @@ write_workspace_agents_reference() {
   fi
 
   upsert_block "$dst_file" \
-    "<!-- the-agency-feature:workspace-references:start -->" \
-    "<!-- the-agency-feature:workspace-references:end -->" \
+    "<!-- the-agency:workspace-rules:start -->" \
+    "<!-- the-agency:workspace-rules:end -->" \
     "$references_block_file"
 }
 
@@ -95,7 +95,7 @@ fi
 
 # Build the references block content dynamically based on use-agent-zero flag
 {
-  echo "<!-- the-agency-feature:workspace-references:start -->"
+  echo "<!-- the-agency:workspace-rules:start -->"
   
   if [ "$use_agent_zero_enabled" = true ]; then
     echo "# Canonical Agent Guide (Mandatory)"
@@ -108,7 +108,7 @@ fi
   echo ""
   echo "Before starting any task, read ~/.the-agency/AGENT_ROUTING.md to understand how to classify divisions and choose the ideal specialist agent for the job."
   echo ""
-  echo "<!-- the-agency-feature:workspace-references:end -->"
+  echo "<!-- the-agency:workspace-rules:end -->"
 } > "$references_block_file"
 
 # If use-agent-zero is enabled, download and sync AGENT-ZERO

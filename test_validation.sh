@@ -30,7 +30,7 @@ echo ""
 
 # Check 2: Verify that routing rules are ALWAYS added
 echo "Check 2: Routing rules always included"
-if grep -q 'echo "# Agent Routing Rules (Mandatory)"' "$on_create_file"; then
+if grep -q 'echo "# How to Choose the Right Specialist Agent (Mandatory)"' "$on_create_file"; then
   echo "✓ Routing rules section present in block"
 else
   echo "FAIL: Routing rules not found"
@@ -52,7 +52,7 @@ echo ""
 # Check 4: Verify order (Canonical BEFORE Routing)
 echo "Check 4: Canonical guide appears BEFORE routing rules in block"
 canonical_pos=$(grep -n 'Canonical Agent Guide' "$on_create_file" | head -1 | cut -d: -f1)
-routing_pos=$(grep -n 'Agent Routing Rules' "$on_create_file" | grep -v Canonical | head -1 | cut -d: -f1)
+routing_pos=$(grep -n 'How to Choose the Right Specialist Agent' "$on_create_file" | head -1 | cut -d: -f1)
 if [ "$canonical_pos" -lt "$routing_pos" ]; then
   echo "✓ Canonical guide comes before routing rules (line $canonical_pos < $routing_pos)"
 else
@@ -84,8 +84,8 @@ echo ""
 
 # Check 7: Verify single block marker (workspace-references)
 echo "Check 7: Single unified block marker"
-if grep -q 'the-agency-feature:workspace-references:start' "$on_create_file" && \
-   grep -q 'the-agency-feature:workspace-references:end' "$on_create_file" && \\
+if grep -q 'the-agency:workspace-rules:start' "$on_create_file" && \
+   grep -q 'the-agency:workspace-rules:end' "$on_create_file" && \
    ! grep -q 'routing-reference\|agent-zero-reference' "$on_create_file"; then
   echo "✓ Using single workspace-references block (no dual markers)"
 else
