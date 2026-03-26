@@ -98,13 +98,13 @@ fi
   echo "<!-- the-agency:workspace-rules:start -->"
   
   if [ "$use_agent_zero_enabled" = true ]; then
-    echo "# Canonical Agent Guide (Mandatory)"
+    echo "## Canonical Agent Guide (Mandatory)"
     echo ""
     echo "Use ~/.the-agency/AGENTS.md as the global AGENTS baseline before execution."
     echo ""
   fi
   
-  echo "# How to Choose the Right Specialist Agent (Mandatory)"
+  echo "## How to Choose the Right Specialist Agent (Mandatory)"
   echo ""
   echo "Before starting any task, read ~/.the-agency/AGENT_ROUTING.md to understand how to classify divisions and choose the ideal specialist agent for the job."
   echo ""
