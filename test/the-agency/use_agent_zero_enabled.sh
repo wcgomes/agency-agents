@@ -37,7 +37,7 @@ EOF
     /usr/local/share/devcontainer-features/the-agency-on-create.sh
     test -s "$tmp_ws/AGENTS.md"
     grep -q "Keep this line untouched." "$tmp_ws/AGENTS.md"
-    grep -q "Agent Routing Rules (Mandatory)" "$tmp_ws/AGENTS.md"
+    grep -q "How to Choose the Right Specialist Agent (Mandatory)" "$tmp_ws/AGENTS.md"
     grep -q "Canonical Agent Guide (Mandatory)" "$tmp_ws/AGENTS.md"
     ! grep -q "old routing body" "$tmp_ws/AGENTS.md"
     ! grep -q "old canonical body" "$tmp_ws/AGENTS.md"
@@ -68,7 +68,7 @@ check "on-create injects agent routing rules header into AGENTS.md" bash -c '
     tmp_ws="$(mktemp -d)"
     cd "$tmp_ws"
     /usr/local/share/devcontainer-features/the-agency-on-create.sh
-    grep -q "Agent Routing Rules (Mandatory)" "$tmp_ws/AGENTS.md"
+    grep -q "How to Choose the Right Specialist Agent (Mandatory)" "$tmp_ws/AGENTS.md"
 '
 
 check "on-create injects canonical agent guide header into AGENTS.md" bash -c '

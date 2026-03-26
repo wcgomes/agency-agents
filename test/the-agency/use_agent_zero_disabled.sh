@@ -17,7 +17,7 @@ check "on-create creates AGENTS.md with routing rules only (when disabled)" bash
     /usr/local/share/devcontainer-features/the-agency-on-create.sh
     
     test -s "$tmp_ws/AGENTS.md"
-    grep -q "Agent Routing Rules (Mandatory)" "$tmp_ws/AGENTS.md"
+    grep -q "How to Choose the Right Specialist Agent (Mandatory)" "$tmp_ws/AGENTS.md"
     grep -q "~/.the-agency/AGENT_ROUTING.md" "$tmp_ws/AGENTS.md"
     ! grep -q "Canonical Agent Guide (Mandatory)" "$tmp_ws/AGENTS.md"
     ! grep -q "~/.the-agency/AGENT-ZERO.md" "$tmp_ws/AGENTS.md"
@@ -42,7 +42,7 @@ EOF
     
     test -s "$tmp_ws/AGENTS.md"
     grep -q "Keep this user content." "$tmp_ws/AGENTS.md"
-    grep -q "Agent Routing Rules (Mandatory)" "$tmp_ws/AGENTS.md"
+    grep -q "How to Choose the Right Specialist Agent (Mandatory)" "$tmp_ws/AGENTS.md"
     ! grep -q "Canonical Agent Guide (Mandatory)" "$tmp_ws/AGENTS.md"
     ! grep -q "Old content" "$tmp_ws/AGENTS.md"
 '
