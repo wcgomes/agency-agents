@@ -30,7 +30,7 @@ echo ""
 
 # Check 2: Verify that routing rules are ALWAYS added
 echo "Check 2: Routing rules always included"
-if grep -q 'echo "# How to Choose the Right Specialist Agent (Mandatory)"' "$on_create_file"; then
+if grep -q 'echo "## How to Choose the Right Specialist Agent (Mandatory)"' "$on_create_file"; then
   echo "✓ Routing rules section present in block"
 else
   echo "FAIL: Routing rules not found"
@@ -41,7 +41,7 @@ echo ""
 # Check 3: Verify that canonical guide is conditional (only when enabled)
 echo "Check 3: Canonical guide is conditional"
 if grep -q 'if \[ "\$use_agent_zero_enabled" = true \]; then' "$on_create_file" && \
-   grep -q 'echo "# Canonical Agent Guide (Mandatory)"' "$on_create_file"; then
+   grep -q 'echo "## Canonical Agent Guide (Mandatory)"' "$on_create_file"; then
   echo "✓ Canonical guide is only added when flag is true"
 else
   echo "FAIL: Canonical guide condition not implemented correctly"
