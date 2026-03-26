@@ -50,18 +50,18 @@ check "on-create references global AGENT_ROUTING.md in AGENTS.md" bash -c '
     grep -q "~/.the-agency/AGENT_ROUTING.md" "$tmp_ws/AGENTS.md"
 '
 
-check "on-create writes global AGENT-ZERO.md" bash -c '
+check "on-create writes global AGENTS.md" bash -c '
     tmp_ws="$(mktemp -d)"
     cd "$tmp_ws"
     /usr/local/share/devcontainer-features/the-agency-on-create.sh
-    test -s "$HOME/.the-agency/AGENT-ZERO.md"
+    test -s "$HOME/.the-agency/AGENTS.md"
 '
 
-check "on-create references global AGENT-ZERO.md in AGENTS.md" bash -c '
+check "on-create references global AGENTS.md in workspace AGENTS.md" bash -c '
     tmp_ws="$(mktemp -d)"
     cd "$tmp_ws"
     /usr/local/share/devcontainer-features/the-agency-on-create.sh
-    grep -q "~/.the-agency/AGENT-ZERO.md" "$tmp_ws/AGENTS.md"
+    grep -q "~/.the-agency/AGENTS.md" "$tmp_ws/AGENTS.md"
 '
 
 check "on-create injects agent routing rules header into AGENTS.md" bash -c '
