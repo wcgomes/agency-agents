@@ -11,7 +11,7 @@ enabled_marker="$marker_dir/the-agency-use-agent-zero.enabled"
 output_file="$PWD/AGENTS.md"
 global_agents_dir="${HOME}/.the-agency"
 global_routing_file="${HOME}/.the-agency/AGENT_ROUTING.md"
-global_agent_zero_file="${HOME}/.the-agency/AGENT-ZERO.md"
+global_agent_zero_file="${HOME}/.the-agency/AGENTS.md"
 source_url="https://raw.githubusercontent.com/msitarzewski/AGENT-ZERO/main/AGENTS.md"
 
 write_workspace_agents_reference() {
@@ -100,7 +100,7 @@ fi
   if [ "$use_agent_zero_enabled" = true ]; then
     echo "# Canonical Agent Guide (Mandatory)"
     echo ""
-    echo "Use ~/.the-agency/AGENT-ZERO.md as the global AGENTS baseline before execution."
+    echo "Use ~/.the-agency/AGENTS.md as the global AGENTS baseline before execution."
     echo ""
   fi
   

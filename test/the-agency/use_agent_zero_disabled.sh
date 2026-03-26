@@ -20,7 +20,7 @@ check "on-create creates AGENTS.md with routing rules only (when disabled)" bash
     grep -q "How to Choose the Right Specialist Agent (Mandatory)" "$tmp_ws/AGENTS.md"
     grep -q "~/.the-agency/AGENT_ROUTING.md" "$tmp_ws/AGENTS.md"
     ! grep -q "Canonical Agent Guide (Mandatory)" "$tmp_ws/AGENTS.md"
-    ! grep -q "~/.the-agency/AGENT-ZERO.md" "$tmp_ws/AGENTS.md"
+    ! grep -q "~/.the-agency/AGENTS.md" "$tmp_ws/AGENTS.md"
 '
 
 check "on-create updates existing AGENTS.md with routing rules only (when disabled)" bash -c '
