@@ -10,7 +10,7 @@ Adds the [msitarzewski/agency-agents](https://github.com/msitarzewski/agency-age
 2. Runs `scripts/convert.sh` to prepare the agents.
 3. Runs `scripts/install.sh --no-interactive --parallel` when `tool=auto` (default), or `scripts/install.sh --tool <tool> --no-interactive` for explicit tool mode.
 
-If `use-agent-zero=true`, the feature syncs `AGENT-ZERO` to `~/.the-agency/AGENT-ZERO.md` during `onCreateCommand`. Workspace `AGENTS.md` is created if missing, or updated in-place by replacing only the-agency managed reference blocks.
+The feature only installs the upstream agent files for the selected tool(s). It does not create or modify workspace `AGENTS.md` files.
 
 ### Usage
 
@@ -36,32 +36,15 @@ To install for a specific tool, pass the `tool` option:
 }
 ```
 
-To also create `AGENTS.md` in the workspace root:
-
-```jsonc
-{
-    "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
-    "features": {
-        "ghcr.io/YOUR_GITHUB_USER/the-agency/the-agency:1": {
-            "tool": "copilot",
-            "use-agent-zero": true
-        }
-    }
-}
-```
-
 ### Options
 
 | Option | Type   | Default    | Description                                                         |
 |--------|--------|------------|---------------------------------------------------------------------|
 | `tool` | string | `auto`     | `auto` runs `install.sh --no-interactive --parallel`; otherwise uses `--tool <tool>` (e.g. `copilot`, `cursor`). |
-| `use-agent-zero` | boolean | `false` | If `true`, syncs `AGENT-ZERO` to `~/.the-agency/AGENT-ZERO.md` during `onCreateCommand`. Workspace `AGENTS.md` is created if missing, or updated in-place by replacing only the-agency managed reference blocks. |
 
 ### Credits
 
 The agents installed by this feature come from the [msitarzewski/agency-agents](https://github.com/msitarzewski/agency-agents) repository. All credit for the agent definitions, `convert.sh`, and `install.sh` scripts belongs to the upstream project and its contributors.
-
-When `use-agent-zero=true`, `~/.the-agency/AGENT-ZERO.md` is sourced from [msitarzewski/AGENT-ZERO](https://github.com/msitarzewski/AGENT-ZERO). Credit for AGENT-ZERO specification belongs to the AGENT-ZERO project and its contributors.
 
 This repository only wraps that upstream work as a dev container Feature for easier, reproducible installation inside dev containers.
 
@@ -93,11 +76,6 @@ For example, the `the-agency` feature exposes a `tool` string option.  If no opt
             "type": "string",
             "default": "auto",
             "description": "Tool name passed to ./scripts/install.sh --tool <tool>. Use 'auto' for --parallel auto-detection."
-        },
-        "use-agent-zero": {
-            "type": "boolean",
-            "default": false,
-            "description": "If true, syncs AGENT-ZERO to ~/.the-agency/AGENT-ZERO.md during onCreateCommand. Workspace AGENTS.md is created if missing, or updated in-place by replacing only the-agency managed reference blocks."
         }
     }
 }
