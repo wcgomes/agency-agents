@@ -3,11 +3,11 @@
 set -eu
 
 log() {
-  echo "[the-agency-feature] $*"
+  echo "[agency-agents-feature] $*"
 }
 
 fail() {
-  echo "[the-agency-feature] ERROR: $*" >&2
+  echo "[agency-agents-feature] ERROR: $*" >&2
   exit 1
 }
 
@@ -104,8 +104,8 @@ if [ -z "$target_home" ]; then
   target_home="/home/$target_user"
 fi
 
-# v4 marker includes tool and target user.
-marker_file="$marker_dir/the-agency-v4-${tool}-${target_user}.done"
+# v1 marker includes tool and target user.
+marker_file="$marker_dir/agency-agents-v1-${tool}-${target_user}.done"
 
 if [ -f "$marker_file" ]; then
   log "Installation already completed for tool '$tool'. Skipping."
@@ -114,7 +114,7 @@ fi
 
 mkdir -p "$marker_dir"
 
-tmp_dir="$(mktemp -d /tmp/the-agency-XXXXXX)"
+tmp_dir="$(mktemp -d /tmp/agency-agents-XXXXXX)"
 cleanup() {
   rm -rf "$tmp_dir"
 }

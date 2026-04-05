@@ -2,13 +2,13 @@
     "default_auto": {
         "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
         "features": {
-            "the-agency": {}
+            "agency-agents": {}
         }
     },
     "explicit_copilot": {
         "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
         "features": {
-            "the-agency": {
+            "agency-agents": {
                 "tool": "copilot"
             }
         }
@@ -16,7 +16,7 @@
     "explicit_all": {
         "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
         "features": {
-            "the-agency": {
+            "agency-agents": {
                 "tool": "all"
             }
         }
