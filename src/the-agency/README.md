@@ -16,35 +16,35 @@ A complete AI agency at your fingertips - From frontend wizards to Reddit commun
 | Options Id | Description | Type | Default Value |
 |-----|-----|-----|-----|
 | tool | Tool name passed to ./scripts/install.sh --tool <tool>. Use 'auto' for --parallel auto-detection. | string | auto |
-| use-agent-zero | If true, includes Canonical Agent Guide section in AGENTS.md and syncs AGENT-ZERO.md to ~/.the-agency/AGENT-ZERO.md. AGENT_ROUTING.md is synced to ~/.the-agency/AGENT_ROUTING.md. | boolean | false |
+| use-agent-zero | If true, includes Canonical Agent Guide section in AGENTS.md and syncs AGENT-ZERO.md to ~/.the-agency/AGENT-ZERO.md. | boolean | false |
 
 # Agency Agents Feature - Additional Notes
 
 ## Behavior Overview
 
-### Agent Routing Rules (Always Added)
-Regardless of the `use-agent-zero` setting, the feature always ensures that agent routing rules are present in your workspace `AGENTS.md` file. This helps LLM agents make informed decisions about which specialist agents to use.
+### Workspace Rules (Always Added)
+Regardless of the `use-agent-zero` setting, the feature always ensures a managed workspace `AGENTS.md` block is present.
 
-- **When enabled**: Routing rules are added to the workspace and reference `~/.the-agency/AGENT_ROUTING.md`
-- **When disabled**: Same routing rules are added, without the Canonical Agent Guide
+- **When enabled**: Includes Canonical Agent Guide section and a generic specialist-agent selection rule
+- **When disabled**: Includes only the generic specialist-agent selection rule
 
 ### Canonical Agent Guide (Optional)
 When `use-agent-zero=true`, the feature additionally includes a reference to the Canonical Agent Guide, which syncs the global `AGENT-ZERO.md` file to `~/.the-agency/`.
 
 - **When enabled**: Includes Canonical Agent Guide section pointing to `~/.the-agency/AGENT-ZERO.md`
-- **When disabled**: Canonical section is omitted, but routing rules still present
+- **When disabled**: Canonical section is omitted
 
 ### Content Order (When Enabled)
 When `use-agent-zero=true`, the AGENTS.md block follows this order:
 1. Canonical Agent Guide (from AGENT-ZERO.md)
-2. Agent Routing Rules (from AGENT_ROUTING.md)
+2. The Agency Agents rule
 
-This ordering ensures LLM agents first understand the baseline canonical behavior before applying specialized routing rules.
+This ordering ensures LLM agents first understand the baseline canonical behavior before applying workspace-level specialist-agent guidance.
 
 ## Use Cases
 
-- **use-agent-zero=false** (default): Minimal setup, just adds routing guidance to workspace
-- **use-agent-zero=true**: Full setup with canonical agent baseline + routing rules
+- **use-agent-zero=false** (default): Minimal setup with specialist-agent guidance in workspace AGENTS.md
+- **use-agent-zero=true**: Full setup with canonical baseline + workspace specialist-agent guidance
 
 
 ---

@@ -28,12 +28,12 @@ else
 fi
 echo ""
 
-# Check 2: Verify that routing rules are ALWAYS added
-echo "Check 2: Routing rules always included"
-if grep -q 'echo "## How to Choose the Right Specialist Agent (Mandatory)"' "$on_create_file"; then
-  echo "✓ Routing rules section present in block"
+# Check 2: Verify that agency guidance is ALWAYS added
+echo "Check 2: Agency guidance always included"
+if grep -q 'echo "## The Agency Agents (Mandatory)"' "$on_create_file"; then
+  echo "✓ Agency guidance section present in block"
 else
-  echo "FAIL: Routing rules not found"
+  echo "FAIL: Agency guidance not found"
   exit 1
 fi
 echo ""
@@ -49,14 +49,14 @@ else
 fi
 echo ""
 
-# Check 4: Verify order (Canonical BEFORE Routing)
-echo "Check 4: Canonical guide appears BEFORE routing rules in block"
+# Check 4: Verify order (Canonical BEFORE Agency Guidance)
+echo "Check 4: Canonical guide appears BEFORE agency guidance in block"
 canonical_pos=$(grep -n 'Canonical Agent Guide' "$on_create_file" | head -1 | cut -d: -f1)
-routing_pos=$(grep -n 'How to Choose the Right Specialist Agent' "$on_create_file" | head -1 | cut -d: -f1)
-if [ "$canonical_pos" -lt "$routing_pos" ]; then
-  echo "✓ Canonical guide comes before routing rules (line $canonical_pos < $routing_pos)"
+agency_pos=$(grep -n 'The Agency Agents (Mandatory)' "$on_create_file" | head -1 | cut -d: -f1)
+if [ "$canonical_pos" -lt "$agency_pos" ]; then
+  echo "✓ Canonical guide comes before agency guidance (line $canonical_pos < $agency_pos)"
 else
-  echo "FAIL: Canonical guide should come before routing rules"
+  echo "FAIL: Canonical guide should come before agency guidance"
   exit 1
 fi
 echo ""
@@ -97,8 +97,8 @@ echo ""
 echo "=== ALL VALIDATIONS PASSED ✓ ==="
 echo ""
 echo "Summary:"
-echo "  1. ✓ Routing rules ALWAYS added (even when use-agent-zero=false)"
+echo "  1. ✓ Agency guidance ALWAYS added (even when use-agent-zero=false)"
 echo "  2. ✓ Canonical guide only added when use-agent-zero=true"
-echo "  3. ✓ Canonical guide appears BEFORE routing rules"
+echo "  3. ✓ Canonical guide appears BEFORE agency guidance"
 echo "  4. ✓ Single unified workspace-references block"
 echo "  5. ✓ AGENTS.md always updated (created or upserted)"

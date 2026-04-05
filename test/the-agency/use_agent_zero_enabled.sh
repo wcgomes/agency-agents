@@ -9,9 +9,6 @@ check "use-agent-zero marker exists" bash -c \
 check "on-create helper exists and is executable" bash -c \
     "test -x /usr/local/share/devcontainer-features/the-agency-on-create.sh"
 
-check "global AGENT_ROUTING.md exists" bash -c \
-    "test -s \"$HOME/.the-agency/AGENT_ROUTING.md\""
-
 check "on-create creates AGENTS.md in workspace when missing" bash -c '
     tmp_ws="$(mktemp -d)"
     cd "$tmp_ws"
@@ -37,17 +34,10 @@ EOF
     /usr/local/share/devcontainer-features/the-agency-on-create.sh
     test -s "$tmp_ws/AGENTS.md"
     grep -q "Keep this line untouched." "$tmp_ws/AGENTS.md"
-    grep -q "How to Choose the Right Specialist Agent (Mandatory)" "$tmp_ws/AGENTS.md"
+    grep -q "The Agency Agents (Mandatory)" "$tmp_ws/AGENTS.md"
     grep -q "Canonical Agent Guide (Mandatory)" "$tmp_ws/AGENTS.md"
-    ! grep -q "old routing body" "$tmp_ws/AGENTS.md"
+    ! grep -q "Use ~/.the-agency/AGENT_ROUTING.md" "$tmp_ws/AGENTS.md"
     ! grep -q "old canonical body" "$tmp_ws/AGENTS.md"
-'
-
-check "on-create references global AGENT_ROUTING.md in AGENTS.md" bash -c '
-    tmp_ws="$(mktemp -d)"
-    cd "$tmp_ws"
-    /usr/local/share/devcontainer-features/the-agency-on-create.sh
-    grep -q "~/.the-agency/AGENT_ROUTING.md" "$tmp_ws/AGENTS.md"
 '
 
 check "on-create writes global AGENTS.md" bash -c '
@@ -64,11 +54,11 @@ check "on-create references global AGENTS.md in workspace AGENTS.md" bash -c '
     grep -q "~/.the-agency/AGENTS.md" "$tmp_ws/AGENTS.md"
 '
 
-check "on-create injects agent routing rules header into AGENTS.md" bash -c '
+check "on-create injects agency agents header into AGENTS.md" bash -c '
     tmp_ws="$(mktemp -d)"
     cd "$tmp_ws"
     /usr/local/share/devcontainer-features/the-agency-on-create.sh
-    grep -q "How to Choose the Right Specialist Agent (Mandatory)" "$tmp_ws/AGENTS.md"
+    grep -q "The Agency Agents (Mandatory)" "$tmp_ws/AGENTS.md"
 '
 
 check "on-create injects canonical agent guide header into AGENTS.md" bash -c '
