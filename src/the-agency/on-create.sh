@@ -10,7 +10,6 @@ marker_dir="/usr/local/share/devcontainer-features"
 enabled_marker="$marker_dir/the-agency-use-agent-zero.enabled"
 output_file="$PWD/AGENTS.md"
 global_agents_dir="${HOME}/.the-agency"
-global_routing_file="${HOME}/.the-agency/AGENT_ROUTING.md"
 global_agent_zero_file="${HOME}/.the-agency/AGENTS.md"
 source_url="https://raw.githubusercontent.com/msitarzewski/AGENT-ZERO/main/AGENTS.md"
 
@@ -69,7 +68,7 @@ upsert_block() {
 
   mv "$tmp_file" "$dst_file"
 }
-log "Writing workspace AGENTS.md with agent routing rules"
+log "Writing workspace AGENTS.md references"
 mkdir -p "$global_agents_dir"
 
 tmp_agents_file=""
@@ -79,13 +78,6 @@ cleanup() {
   rm -f "$references_block_file"
 }
 trap cleanup EXIT
-
-# Copy AGENT_ROUTING.md from shared location to user's home if it exists
-marker_dir="/usr/local/share/devcontainer-features"
-routing_template_file="$marker_dir/the-agency-AGENT_ROUTING.md"
-if [ -f "$routing_template_file" ]; then
-  cp "$routing_template_file" "$global_routing_file"
-fi
 
 # Check if use-agent-zero is enabled
 use_agent_zero_enabled=false
@@ -103,10 +95,10 @@ fi
     echo "Use ~/.the-agency/AGENTS.md as the global AGENTS baseline before execution."
     echo ""
   fi
-  
-  echo "## How to Choose the Right Specialist Agent (Mandatory)"
+
+  echo "## The Agency Agents (Mandatory)"
   echo ""
-  echo "Before starting any task, read ~/.the-agency/AGENT_ROUTING.md to understand how to classify divisions and choose the ideal specialist agent for the job."
+  echo "Use the installed specialist agents and pick the best match for the task requirements."
   echo ""
   echo "<!-- the-agency:workspace-rules:end -->"
 } > "$references_block_file"
@@ -118,24 +110,24 @@ if [ "$use_agent_zero_enabled" = true ]; then
   
   if command -v curl >/dev/null 2>&1; then
     if ! curl -fsSL "$source_url" -o "$tmp_agents_file"; then
-      log "WARNING: Could not download AGENTS.md with curl. Using routing rules only."
+      log "WARNING: Could not download AGENTS.md with curl. Continuing without Canonical Agent Guide sync."
     else
       cp "$tmp_agents_file" "$global_agent_zero_file"
       log "Global AGENT-ZERO synced to $global_agent_zero_file"
     fi
   elif command -v wget >/dev/null 2>&1; then
     if ! wget -qO "$tmp_agents_file" "$source_url"; then
-      log "WARNING: Could not download AGENTS.md with wget. Using routing rules only."
+      log "WARNING: Could not download AGENTS.md with wget. Continuing without Canonical Agent Guide sync."
     else
       cp "$tmp_agents_file" "$global_agent_zero_file"
       log "Global AGENT-ZERO synced to $global_agent_zero_file"
     fi
   else
-    log "WARNING: Neither curl nor wget is available. Using routing rules only."
+    log "WARNING: Neither curl nor wget is available. Continuing without Canonical Agent Guide sync."
   fi
 else
-  log "use-agent-zero is disabled. Writing routing rules only."
+  log "use-agent-zero is disabled. Skipping Canonical Agent Guide sync."
 fi
 
 write_workspace_agents_reference "$output_file" "$references_block_file"
-log "AGENTS.md updated successfully with agent routing rules."
+log "AGENTS.md updated successfully."

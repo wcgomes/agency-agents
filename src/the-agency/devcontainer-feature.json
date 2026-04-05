@@ -1,6 +1,6 @@
 {
   "id": "the-agency",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "name": "The Agency",
   "description": "A complete AI agency at your fingertips - From frontend wizards to Reddit community ninjas, from whimsy injectors to reality checkers. Each agent is a specialized expert with personality, processes, and proven deliverables. Credits: https://github.com/msitarzewski/agency-agents.",
   "documentationURL": "https://github.com/wcgomes/devcontainer-features?tab=readme-ov-file#feature-the-agency",
@@ -13,7 +13,7 @@
     "use-agent-zero": {
       "type": "boolean",
       "default": false,
-      "description": "If true, includes Canonical Agent Guide section in AGENTS.md and syncs AGENT-ZERO.md to ~/.the-agency/AGENT-ZERO.md. AGENT_ROUTING.md is synced to ~/.the-agency/AGENT_ROUTING.md."
+      "description": "If true, includes Canonical Agent Guide section in AGENTS.md and syncs AGENT-ZERO.md to ~/.the-agency/AGENT-ZERO.md."
     }
   },
   "onCreateCommand": "/usr/local/share/devcontainer-features/the-agency-on-create.sh",
