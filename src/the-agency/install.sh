@@ -84,7 +84,6 @@ ensure_prerequisites() {
 # Dev Container Features export options as uppercase env vars (e.g. TOOL).
 # Keep FEATURE_OPTION_TOOL as a compatibility fallback.
 tool="${TOOL:-${FEATURE_OPTION_TOOL:-auto}}"
-use_agent_zero="${USE_AGENT_ZERO:-${FEATURE_OPTION_USE_AGENT_ZERO:-false}}"
 
 case "$tool" in
   "")
@@ -92,14 +91,6 @@ case "$tool" in
     ;;
   *[!a-zA-Z0-9_-]*)
     fail "Option 'tool' contains invalid characters: '$tool'."
-    ;;
-esac
-
-case "$use_agent_zero" in
-  true|false)
-    ;;
-  *)
-    fail "Option 'use-agent-zero' must be 'true' or 'false'. Got: '$use_agent_zero'."
     ;;
 esac
 
@@ -113,11 +104,8 @@ if [ -z "$target_home" ]; then
   target_home="/home/$target_user"
 fi
 
-# v3 marker includes use-agent-zero so config changes trigger a rerun.
-marker_file="$marker_dir/the-agency-v3-${tool}-${use_agent_zero}-${target_user}.done"
-on_create_helper_src="$(dirname "$0")/on-create.sh"
-on_create_helper_dst="$marker_dir/the-agency-on-create.sh"
-use_agent_zero_marker="$marker_dir/the-agency-use-agent-zero.enabled"
+# v4 marker includes tool and target user.
+marker_file="$marker_dir/the-agency-v4-${tool}-${target_user}.done"
 
 if [ -f "$marker_file" ]; then
   log "Installation already completed for tool '$tool'. Skipping."
@@ -125,16 +113,6 @@ if [ -f "$marker_file" ]; then
 fi
 
 mkdir -p "$marker_dir"
-
-[ -f "$on_create_helper_src" ] || fail "Missing script: on-create.sh"
-cp "$on_create_helper_src" "$on_create_helper_dst"
-chmod 0755 "$on_create_helper_dst"
-
-if [ "$use_agent_zero" = "true" ]; then
-  touch "$use_agent_zero_marker"
-else
-  rm -f "$use_agent_zero_marker"
-fi
 
 tmp_dir="$(mktemp -d /tmp/the-agency-XXXXXX)"
 cleanup() {

@@ -20,14 +20,5 @@
                 "tool": "all"
             }
         }
-    },
-    "use_agent_zero_enabled": {
-        "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
-        "features": {
-            "the-agency": {
-                "tool": "copilot",
-                "use-agent-zero": true
-            }
-        }
     }
 }
