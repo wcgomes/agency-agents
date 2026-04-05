@@ -12,6 +12,8 @@ Adds the [msitarzewski/agency-agents](https://github.com/msitarzewski/agency-age
 
 The feature only installs the upstream agent files for the selected tool(s). It does not create or modify workspace `AGENTS.md` files.
 
+Official website: [agencyagents.dev](https://agencyagents.dev)
+
 ### Usage
 
 ```jsonc
@@ -45,6 +47,8 @@ To install for a specific tool, pass the `tool` option:
 ### Credits
 
 The agents installed by this feature come from the [msitarzewski/agency-agents](https://github.com/msitarzewski/agency-agents) repository. All credit for the agent definitions, `convert.sh`, and `install.sh` scripts belongs to the upstream project and its contributors.
+
+Project website: [agencyagents.dev](https://agencyagents.dev)
 
 This repository only wraps that upstream work as a dev container Feature for easier, reproducible installation inside dev containers.
 
