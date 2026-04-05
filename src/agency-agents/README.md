@@ -1,5 +1,5 @@
 
-# The Agency (the-agency)
+# Agency Agents (agency-agents)
 
 A complete AI agency at your fingertips - From frontend wizards to Reddit community ninjas, from whimsy injectors to reality checkers. Each agent is a specialized expert with personality, processes, and proven deliverables. Credits: https://github.com/msitarzewski/agency-agents.
 
@@ -7,7 +7,7 @@ A complete AI agency at your fingertips - From frontend wizards to Reddit commun
 
 ```json
 "features": {
-    "ghcr.io/wcgomes/devcontainer-features/the-agency:0": {}
+    "ghcr.io/wcgomes/devcontainer-features/agency-agents:0": {}
 }
 ```
 
@@ -32,4 +32,4 @@ It does not create or modify workspace `AGENTS.md` files.
 
 ---
 
-_Note: This file was auto-generated from the [devcontainer-feature.json](https://github.com/wcgomes/devcontainer-features/blob/main/src/the-agency/devcontainer-feature.json).  Add additional notes to a `NOTES.md`._
+_Note: This file was auto-generated from the [devcontainer-feature.json](https://github.com/wcgomes/devcontainer-features/blob/main/src/agency-agents/devcontainer-feature.json).  Add additional notes to a `NOTES.md`._

@@ -2,7 +2,7 @@
 
 This repository provides a collection of [dev container Features](https://containers.dev/implementors/features/) for use in dev containers and GitHub Codespaces. Each Feature is independently versioned and published to GitHub Container Registry (GHCR) following the [dev container Feature distribution specification](https://containers.dev/implementors/features-distribution/).
 
-## Feature: `the-agency`
+## Feature: `agency-agents`
 
 Adds the [msitarzewski/agency-agents](https://github.com/msitarzewski/agency-agents) agent set to your dev container. During the container build it:
 
@@ -18,7 +18,7 @@ The feature only installs the upstream agent files for the selected tool(s). It 
 {
     "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
     "features": {
-        "ghcr.io/YOUR_GITHUB_USER/the-agency/the-agency:1": {}
+        "ghcr.io/YOUR_GITHUB_USER/agency-agents/agency-agents:1": {}
     }
 }
 ```
@@ -29,7 +29,7 @@ To install for a specific tool, pass the `tool` option:
 {
     "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
     "features": {
-        "ghcr.io/YOUR_GITHUB_USER/the-agency/the-agency:1": {
+        "ghcr.io/YOUR_GITHUB_USER/agency-agents/agency-agents:1": {
             "tool": "cursor"
         }
     }
@@ -54,7 +54,7 @@ Similar to the [`devcontainers/features`](https://github.com/devcontainers/featu
 
 ```
 ├── src
-│   ├── the-agency
+│   ├── agency-agents
 │   │   ├── devcontainer-feature.json
 │   │   └── install.sh
 ...
@@ -66,7 +66,7 @@ An [implementing tool](https://containers.dev/supporting#tools) will composite [
 
 All available options for a Feature should be declared in the `devcontainer-feature.json`.  The syntax for the `options` property can be found in the [devcontainer Feature json properties reference](https://containers.dev/implementors/features/#devcontainer-feature-json-properties).
 
-For example, the `the-agency` feature exposes a `tool` string option.  If no option is provided in a user's `devcontainer.json`, the value defaults to `auto`.
+For example, the `agency-agents` feature exposes a `tool` string option.  If no option is provided in a user's `devcontainer.json`, the value defaults to `auto`.
 
 ```jsonc
 {
@@ -112,12 +112,12 @@ This repo contains a **GitHub Action** [workflow](.github/workflows/release.yaml
 By default, each Feature will be prefixed with the `<owner>/<repo>` namespace.  For example, the Feature in this repository can be referenced in a `devcontainer.json` with:
 
 ```
-ghcr.io/<owner>/the-agency/the-agency:1
+ghcr.io/<owner>/agency-agents/agency-agents:1
 ```
 
-The provided GitHub Action will also publish a "metadata" package with just the namespace, eg: `ghcr.io/<owner>/the-agency`.  This contains information useful for tools aiding in Feature discovery.
+The provided GitHub Action will also publish a "metadata" package with just the namespace, eg: `ghcr.io/<owner>/agency-agents`.  This contains information useful for tools aiding in Feature discovery.
 
-`<owner>/the-agency` is known as the feature collection namespace.
+`<owner>/agency-agents` is known as the feature collection namespace.
 
 ### Marking Feature Public
 
