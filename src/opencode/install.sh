@@ -114,9 +114,33 @@ su "$USERNAME" -c "curl -fsSL https://opencode.ai/install | bash -s -- --no-modi
 
 ln -s "${USER_HOME}/.opencode/bin/opencode" /usr/local/bin/opencode
 
+log "Criando diretórios para volumes persistentes..."
+
+mkdir -p "${USER_HOME}/.config/opencode"
+mkdir -p "${USER_HOME}/.local/share/opencode"
+mkdir -p "${USER_HOME}/.local/state/opencode"
+
+chown -R "${USERNAME}:${USERNAME}" \
+	"${USER_HOME}/.config/opencode" \
+	"${USER_HOME}/.local/share/opencode" \
+	"${USER_HOME}/.local/state/opencode"
+
 cat > /usr/local/bin/opencode-fix-permissions <<EOF
 #!/bin/bash
 set -euo pipefail
+
+for path in \
+	"${USER_HOME}/.config" \
+	"${USER_HOME}/.config/opencode" \
+	"${USER_HOME}/.local/share" \
+	"${USER_HOME}/.local/share/opencode" \
+	"${USER_HOME}/.local/state" \
+	"${USER_HOME}/.local/state/opencode"
+do
+	if [ -e "\$path" ] && [ "\$(stat -c '%U' "\$path" 2>/dev/null)" != "${USERNAME}" ]; then
+		sudo chown ${USERNAME}:${USERNAME} "\$path" 2>/dev/null || true
+	fi
+done
 
 for path in \
 	"${USER_HOME}/.config/opencode" \
@@ -124,7 +148,7 @@ for path in \
 	"${USER_HOME}/.local/state/opencode"
 do
 	if [ -e "\$path" ]; then
-		sudo chown -R ${USERNAME}:${USERNAME} "\$path"
+		sudo chown -R ${USERNAME}:${USERNAME} "\$path" 2>/dev/null || true
 	fi
 done
 EOF
