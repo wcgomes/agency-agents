@@ -83,6 +83,18 @@ The three named volumes (`opencode-config`, `opencode-data`, `opencode-state`) a
 - **Same project, rebuilds**: data persists between container rebuilds
 - **Different projects**: if another devcontainer uses the same volume names, it will access the same data — replicating the behavior of having opencode installed locally on the machine
 
+### What happens without volume mounts?
+
+The feature works perfectly **without** volume mounts. If you don't configure the `mounts`:
+
+- ✅ The CLI (`opencode`) works normally
+- ✅ The binary is installed and symlinked to PATH
+- ✅ The `fix-permissions` script runs without errors (it just skips non-existent paths)
+
+**Limitation:** Data is stored in the container's ephemeral filesystem. On container rebuild or recreation, configuration, cache, and session state will be **reset** to defaults.
+
+For a persistent experience, we **strongly recommend** adding the volume mounts shown above.
+
 ### What is not covered by the feature
 
 The `mounts` (volumes) cannot be declared by the feature — they must be specified in the consumer's `devcontainer.json`. This is a limitation of the devcontainer features spec.
