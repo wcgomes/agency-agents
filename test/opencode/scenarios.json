@@ -1,0 +1,24 @@
+{
+    "default": {
+        "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+        "features": {
+            "opencode": {}
+        }
+    },
+    "custom_username": {
+        "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+        "features": {
+            "opencode": {
+                "username": "vscode"
+            }
+        }
+    },
+    "specific_version": {
+        "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+        "features": {
+            "opencode": {
+                "version": "1.3.17"
+            }
+        }
+    }
+}

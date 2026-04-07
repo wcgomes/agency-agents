@@ -52,6 +52,63 @@ Project website: [agencyagents.dev](https://agencyagents.dev)
 
 This repository only wraps that upstream work as a dev container Feature for easier, reproducible installation inside dev containers.
 
+## Feature: `opencode`
+
+Installs the [opencode](https://opencode.ai) AI coding agent CLI and ensures volume-mounted data directories are owned by the correct user. During the container build it:
+
+1. Downloads and runs the opencode installer via `curl -fsSL https://opencode.ai/install | bash -s -- --no-modify-path`.
+2. Creates a symlink at `/usr/local/bin/opencode` so the CLI is available on `PATH`.
+3. Installs a `/usr/local/bin/opencode-fix-permissions` script that fixes ownership of volume-mounted data directories.
+
+The feature runs `opencode-fix-permissions` as a `postStartCommand` to ensure the `config`, `data`, and `state` directories under `~/.opencode` are owned by the dev container user.
+
+Official documentation: [opencode.ai](https://opencode.ai)
+
+### Usage
+
+```jsonc
+{
+    "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+    "features": {
+        "ghcr.io/YOUR_GITHUB_USER/devcontainer-features/opencode:0": {}
+    }
+}
+```
+
+To specify the username for volume ownership fixes, pass the `username` option:
+
+```jsonc
+{
+    "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+    "features": {
+        "ghcr.io/YOUR_GITHUB_USER/devcontainer-features/opencode:0": {
+            "username": "vscode"
+        }
+    }
+}
+```
+
+### Options
+
+| Option     | Type   | Default | Description                                                    |
+|------------|--------|---------|----------------------------------------------------------------|
+| `username` | string | `""`    | Username to own the `~/.opencode` volume-mounted directories.  |
+| `version`  | string | `""`    | Specific version to install (e.g. `1.3.17`). Empty = latest.  |
+
+### Volume Mounts
+
+Opencode stores its configuration, data, and state under `~/.opencode` in three subdirectories:
+
+- `config` – configuration files
+- `data` – project data and caches
+- `state` – runtime state
+
+When these directories are volume-mounted into the container, they may be owned by `root` depending on how the volumes are created. The `opencode-fix-permissions` script runs on container start to `chown` these directories to the specified user, ensuring opencode can read and write them without permission errors.
+
+### Shared Volumes Between Projects
+
+If you share the same `~/.opencode` volume mounts across multiple projects, be aware that opencode's state and data will be shared as well. This can be useful for preserving context between projects, but may also cause unexpected behaviour if projects have conflicting configurations. Consider using separate volume mounts per project if isolation is needed.
+
 ## Repo and Feature Structure
 
 Similar to the [`devcontainers/features`](https://github.com/devcontainers/features) repo, this repository has a `src` folder.  Each Feature has its own sub-folder, containing at least a `devcontainer-feature.json` and an entrypoint script `install.sh`.
