@@ -156,6 +156,16 @@ else
   log "Running install.sh --tool $tool --no-interactive..."
 fi
 
+opencode_agents_src="$repo_dir/integrations/opencode/agents"
+opencode_agents_global="$target_home/.config/opencode/agents"
+
+should_install_opencode() {
+  case "$tool" in
+    auto|all|opencode) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
 if [ "$(id -u)" -eq 0 ] && [ "$target_user" != "root" ] && id "$target_user" >/dev/null 2>&1; then
   log "Installing for user '$target_user' (HOME=$target_home)..."
   chown -R "$target_user":"$target_user" "$tmp_dir"
@@ -164,6 +174,13 @@ if [ "$(id -u)" -eq 0 ] && [ "$target_user" != "root" ] && id "$target_user" >/d
     su - "$target_user" -c "cd '$repo_dir' && HOME='$target_home' ./scripts/install.sh --no-interactive --parallel"
   else
     su - "$target_user" -c "cd '$repo_dir' && HOME='$target_home' ./scripts/install.sh --tool '$tool' --no-interactive"
+  fi
+  if should_install_opencode && [ -d "$opencode_agents_src" ]; then
+    log "Installing OpenCode agents globally to $opencode_agents_global..."
+    mkdir -p "$opencode_agents_global"
+    cp "$opencode_agents_src"/*.md "$opencode_agents_global/" 2>/dev/null || true
+    chown -R "$target_user":"$target_user" "$opencode_agents_global"
+    log "OpenCode agents installed globally."
   fi
 else
   log "Installing for current user '$(id -un)' (HOME=${HOME:-unknown})..."
@@ -175,6 +192,12 @@ else
       ./scripts/install.sh --tool "$tool" --no-interactive
     fi
   )
+  if should_install_opencode && [ -d "$opencode_agents_src" ]; then
+    log "Installing OpenCode agents globally to $opencode_agents_global..."
+    mkdir -p "$opencode_agents_global"
+    cp "$opencode_agents_src"/*.md "$opencode_agents_global/" 2>/dev/null || true
+    log "OpenCode agents installed globally."
+  fi
 fi
 
 touch "$marker_file"
