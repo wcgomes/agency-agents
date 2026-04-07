@@ -1,33 +1,33 @@
 # opencode Feature
 
-Instala a CLI do [opencode](https://opencode.ai) e garante que os diretórios de dados montados como volume sejam ownership do usuário correto.
+Installs the [opencode](https://opencode.ai) CLI and ensures volume-mounted data directories are owned by the correct user.
 
-## O que a feature faz
+## What the feature does
 
-1. Executa o installer oficial (`curl https://opencode.ai/install | bash -s -- --no-modify-path`) como o usuário correto
-2. Cria symlink `/usr/local/bin/opencode` para expor o binário no PATH
-3. Instala script `opencode-fix-permissions` em `/usr/local/bin/` — executado automaticamente via `postStartCommand` para corrigir ownership dos volumes
+1. Runs the official installer (`curl https://opencode.ai/install | bash -s -- --no-modify-path`) as the correct user
+2. Creates symlink `/usr/local/bin/opencode` to expose the binary on PATH
+3. Installs `opencode-fix-permissions` script in `/usr/local/bin/` — automatically executed via `postStartCommand` to fix volume ownership
 
-## Detecção automática de usuário
+## Automatic user detection
 
-A feature detecta o usuário automaticamente usando as variáveis de ambiente disponíveis durante o install:
+The feature detects the user automatically using environment variables available during install:
 
-- `_REMOTE_USER` — o usuário configurado no `devcontainer.json` (via `remoteUser`) ou fallback para `_CONTAINER_USER`
-- `_REMOTE_USER_HOME` — o home directory desse usuário
+- `_REMOTE_USER` — the user configured in `devcontainer.json` (via `remoteUser`) or fallback to `_CONTAINER_USER`
+- `_REMOTE_USER_HOME` — the home directory of that user
 
-Se nenhuma estiver disponível (fallback), usa `vscode` como padrão.
+If none are available (fallback), uses `vscode` as default.
 
-Para imagens base de devcontainer comuns:
+For common devcontainer base images:
 
-| Imagem | Usuário padrão |
+| Image | Default user |
 |---|---|
 | `mcr.microsoft.com/devcontainers/base:*` | `vscode` |
 | `mcr.microsoft.com/devcontainers/universal:*` | `codespace` |
 | GitHub Codespaces | `codespace` |
 
-## Configuração necessária no `devcontainer.json`
+## Required configuration in `devcontainer.json`
 
-A feature pode ser adicionada sem configuração adicional. Para customizar o usuário, use a opção `username`:
+The feature can be added without additional configuration. To customize the user, use the `username` option:
 
 ```json
 {
@@ -55,34 +55,34 @@ A feature pode ser adicionada sem configuração adicional. Para customizar o us
 }
 ```
 
-### Opções disponíveis
+### Available options
 
-| Opção | Tipo | Default | Descrição |
+| Option | Type | Default | Description |
 |---|---|---|---|
-| `username` | string | `_REMOTE_USER` ou `vscode` | Usuário para instalar e executar o opencode |
-| `version` | string | (vazio = latest) | Versão específica a instalar (ex: `1.3.17`) |
+| `username` | string | `_REMOTE_USER` or `vscode` | User to install and run opencode for |
+| `version` | string | (empty = latest) | Specific version to install (e.g. `1.3.17`) |
 
-### O que a feature gerencia automaticamente
+### What the feature manages automatically
 
-- **`postStartCommand`** — a feature já declara `postStartCommand: "bash /usr/local/bin/opencode-fix-permissions"` internamente, então **não é necessário** adicioná-lo no `devcontainer.json` do consumidor
-- **Symlink** — `/usr/local/bin/opencode` é criado automaticamente
-- **Permissões** — o script de chown é gerado e invocado automaticamente após cada start
+- **`postStartCommand`** — the feature already declares `postStartCommand: "bash /usr/local/bin/opencode-fix-permissions"` internally, so **no need** to add it to the consumer's `devcontainer.json`
+- **Symlink** — `/usr/local/bin/opencode` is created automatically
+- **Permissions** — the chown script is generated and invoked automatically after each start
 
-### Explicação dos mounts
+### Mount explanation
 
-| Mount | Propósito |
+| Mount | Purpose |
 |---|---|
-| `opencode-config` | Persistência de configurações e chaves de API |
-| `opencode-data` | Dados da aplicação (cache, modelos, etc.) |
-| `opencode-state` | Estado da sessão (histórico, conversas ativas) |
+| `opencode-config` | Configuration files and API keys persistence |
+| `opencode-data` | Application data (cache, models, etc.) |
+| `opencode-state` | Session state (history, active conversations) |
 
-### Volumes compartilhados entre projetos
+### Shared volumes between projects
 
-Os três volumes nomeados (`opencode-config`, `opencode-data`, `opencode-state`) são globais ao daemon Docker. Isso significa que:
+The three named volumes (`opencode-config`, `opencode-data`, `opencode-state`) are global to the Docker daemon. This means:
 
-- **Mesmo projeto, rebuilds**: dados persistem entre rebuilds do container
-- **Projetos diferentes**: se outro devcontainer usar os mesmos nomes de volume, acessará os mesmos dados — replicando o comportamento de ter o opencode instalado localmente na máquina
+- **Same project, rebuilds**: data persists between container rebuilds
+- **Different projects**: if another devcontainer uses the same volume names, it will access the same data — replicating the behavior of having opencode installed locally on the machine
 
-### O que não é coberto pela feature
+### What is not covered by the feature
 
-Os `mounts` (volumes) não podem ser declarados pela feature — precisam constar no `devcontainer.json` do consumidor. Isso é uma limitação da spec de devcontainer features.
+The `mounts` (volumes) cannot be declared by the feature — they must be specified in the consumer's `devcontainer.json`. This is a limitation of the devcontainer features spec.
