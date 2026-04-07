@@ -117,11 +117,13 @@ ln -s "${USER_HOME}/.opencode/bin/opencode" /usr/local/bin/opencode
 log "Criando diretórios para volumes persistentes..."
 
 mkdir -p "${USER_HOME}/.config/opencode"
+mkdir -p "${USER_HOME}/.local"
 mkdir -p "${USER_HOME}/.local/share/opencode"
 mkdir -p "${USER_HOME}/.local/state/opencode"
 
 chown -R "${USERNAME}:${USERNAME}" \
 	"${USER_HOME}/.config/opencode" \
+	"${USER_HOME}/.local" \
 	"${USER_HOME}/.local/share/opencode" \
 	"${USER_HOME}/.local/state/opencode"
 
@@ -132,6 +134,7 @@ set -euo pipefail
 for path in \
 	"${USER_HOME}/.config" \
 	"${USER_HOME}/.config/opencode" \
+	"${USER_HOME}/.local" \
 	"${USER_HOME}/.local/share" \
 	"${USER_HOME}/.local/share/opencode" \
 	"${USER_HOME}/.local/state" \
