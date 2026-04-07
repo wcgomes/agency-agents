@@ -33,7 +33,7 @@ The feature can be added without additional configuration. To customize the user
 {
   "image": "mcr.microsoft.com/devcontainers/base:trixie",
   "features": {
-    "./features/opencode": {}
+    "ghcr.io/wcgomes/devcontainer-features/opencode:0": {}
   },
   "mounts": [
     {
