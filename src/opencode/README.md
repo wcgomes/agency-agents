@@ -6,8 +6,28 @@ Installs the opencode AI coding agent CLI and ensures volume-mounted data direct
 ## Example Usage
 
 ```json
-"features": {
+{
+  "image": "mcr.microsoft.com/devcontainers/base:trixie",
+  "features": {
     "ghcr.io/wcgomes/devcontainer-features/opencode:0": {}
+  },
+  "mounts": [
+    {
+      "source": "opencode-config",
+      "target": "/home/vscode/.config/opencode",
+      "type": "volume"
+    },
+    {
+      "source": "opencode-data",
+      "target": "/home/vscode/.local/share/opencode",
+      "type": "volume"
+    },
+    {
+      "source": "opencode-state",
+      "target": "/home/vscode/.local/state/opencode",
+      "type": "volume"
+    }
+  ]
 }
 ```
 
