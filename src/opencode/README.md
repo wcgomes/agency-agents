@@ -16,6 +16,7 @@ Installs the opencode AI coding agent CLI and ensures volume-mounted data direct
 | Options Id | Description | Type | Default Value |
 |-----|-----|-----|-----|
 | username | Username to install opencode for. Defaults to _REMOTE_USER (the container's remote user). | string | - |
+| installVscodePlugin | Install the opencode VS Code extension. | boolean | true |
 | version | Version to install (e.g. 1.3.17). Empty = latest. | string | - |
 
 

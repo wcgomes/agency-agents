@@ -1,7 +1,7 @@
 {
 	"name": "opencode CLI",
 	"id": "opencode",
-	"version": "0.2.3",
+	"version": "0.2.4",
 	"description": "Installs the opencode AI coding agent CLI and ensures volume-mounted data directories are owned by the correct user.",
 	"documentationURL": "https://opencode.ai",
 	"options": {
@@ -9,6 +9,11 @@
 			"type": "string",
 			"default": "",
 			"description": "Username to install opencode for. Defaults to _REMOTE_USER (the container's remote user)."
+		},
+		"installVscodePlugin": {
+			"type": "boolean",
+			"default": true,
+			"description": "Install the opencode VS Code extension."
 		},
 		"version": {
 			"type": "string",
