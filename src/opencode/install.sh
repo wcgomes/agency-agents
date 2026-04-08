@@ -73,6 +73,30 @@ ensure_prerequisites() {
   [ -f /etc/ssl/certs/ca-certificates.crt ] || fail "Falha na instalação de dependências: certificados CA ainda estão ausentes"
 }
 
+install_vscode_extension() {
+  local user="$1"
+  local vscode_cmd=""
+
+  if command -v code >/dev/null 2>&1; then
+    vscode_cmd="code"
+  elif [ -x "/usr/bin/code" ]; then
+    vscode_cmd="/usr/bin/code"
+  fi
+
+  if [ -z "$vscode_cmd" ]; then
+    log "VS Code não encontrado. Pulando instalação da extensão."
+    return 0
+  fi
+
+  log "Instalando extensão VS Code opencode..."
+
+  if su "$user" -c "$vscode_cmd --install-extension sst-dev.opencode --force" 2>/dev/null; then
+    log "Extensão VS Code instalada com sucesso."
+  else
+    log "Falha ao instalar extensão VS Code."
+  fi
+}
+
 USERNAME="${USERNAME:-"${_REMOTE_USER:-vscode}"}"
 USER_HOME="${_REMOTE_USER_HOME:-"/home/${USERNAME}"}"
 VERSION="${VERSION:-}"
@@ -113,6 +137,10 @@ fi
 su "$USERNAME" -c "curl -fsSL https://opencode.ai/install | bash -s -- --no-modify-path $version_flag"
 
 ln -s "${USER_HOME}/.opencode/bin/opencode" /usr/local/bin/opencode
+
+if [ "${INSTALLVSCODEPLUGIN:-true}" = "true" ]; then
+  install_vscode_extension "$USERNAME"
+fi
 
 log "Criando diretórios para volumes persistentes..."
 
