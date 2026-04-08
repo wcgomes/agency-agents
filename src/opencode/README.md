@@ -19,7 +19,21 @@ Installs the opencode AI coding agent CLI and ensures volume-mounted data direct
 | installVscodePlugin | Install the opencode VS Code extension. | boolean | true |
 | version | Version to install (e.g. 1.3.17). Empty = latest. | string | - |
 
+# OpenCode Feature - Additional Notes
 
+## Volume Mounts
+
+Opencode stores its configuration, data, and state under `~/.opencode` in three subdirectories:
+
+- `config` – configuration files
+- `data` – project data and caches
+- `state` – runtime state
+
+When these directories are volume-mounted into the container, they may be owned by `root` depending on how the volumes are created. The `opencode-fix-permissions` script runs on container start to `chown` these directories to the specified user, ensuring opencode can read and write them without permission errors.
+
+## Shared Volumes Between Projects
+
+If you share the same `~/.opencode` volume mounts across multiple projects, be aware that opencode's state and data will be shared as well. This can be useful for preserving context between projects, but may also cause unexpected behaviour if projects have conflicting configurations. Consider using separate volume mounts per project if isolation is needed.
 
 ---
 
