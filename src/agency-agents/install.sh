@@ -81,9 +81,51 @@ ensure_prerequisites() {
   [ -f /etc/ssl/certs/ca-certificates.crt ] || fail "Dependency installation failed: CA certificates are still missing"
 }
 
+get_remote_commit() {
+  curl -fsSL "https://api.github.com/repos/msitarzewski/agency-agents/commits/main" 2>/dev/null | \
+    grep -o '"sha": "[a-f0-9]*' | cut -d'"' -f4 | cut -c1-7
+}
+
+autoupdate_check() {
+  if [ "$autoupdate" != "true" ]; then
+    return 0
+  fi
+
+  if [ ! -f "$commit_file" ]; then
+    log "Autoupdate: skipped (no commit file found)"
+    return 0
+  fi
+
+  installed_commit="$(cat "$commit_file")"
+  if [ -z "$installed_commit" ]; then
+    log "Autoupdate: skipped (empty commit file)"
+    return 0
+  fi
+
+  log "Autoupdate: checking for updates..."
+
+  remote_commit="$(get_remote_commit)"
+  if [ -z "$remote_commit" ]; then
+    log "Autoupdate: skipped (unable to fetch remote commit)"
+    return 0
+  fi
+
+  if [ "$remote_commit" = "$installed_commit" ]; then
+    log "Autoupdate: already on latest version ($remote_commit)"
+    return 0
+  fi
+
+  log "Autoupdate: new version available ($installed_commit → $remote_commit), updating..."
+
+  rm -f "$marker_file"
+  rm -f "$commit_file"
+  return 1
+}
+
 # Dev Container Features export options as uppercase env vars (e.g. TOOL).
 # Keep FEATURE_OPTION_TOOL as a compatibility fallback.
 tool="${TOOL:-${FEATURE_OPTION_TOOL:-auto}}"
+autoupdate="${AGENCY_AGENTS_AUTOUPDATE:-${AUTOUPDATE:-true}}"
 
 case "$tool" in
   "")
@@ -106,10 +148,16 @@ fi
 
 # v1 marker includes tool and target user.
 marker_file="$marker_dir/agency-agents-v1-${tool}-${target_user}.done"
+commit_file="$marker_dir/agency-agents-v1-${tool}-${target_user}.commit"
 
 if [ -f "$marker_file" ]; then
-  log "Installation already completed for tool '$tool'. Skipping."
+  log "Installation already completed for tool '$tool'."
+  autoupdate_check
   exit 0
+fi
+
+if [ -f "$commit_file" ]; then
+  autoupdate_check || true
 fi
 
 mkdir -p "$marker_dir"
@@ -201,4 +249,10 @@ else
 fi
 
 touch "$marker_file"
+
+remote_final_commit="$(get_remote_commit)"
+if [ -n "$remote_final_commit" ]; then
+  echo "$remote_final_commit" > "$commit_file"
+fi
+
 log "Installation completed for tool '$tool'."

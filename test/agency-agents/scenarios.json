@@ -28,5 +28,23 @@
                 "tool": "opencode"
             }
         }
+    },
+    "autoupdate_disabled": {
+        "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+        "features": {
+            "agency-agents": {
+                "tool": "auto",
+                "autoupdate": false
+            }
+        }
+    },
+    "autoupdate_enabled": {
+        "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+        "features": {
+            "agency-agents": {
+                "tool": "auto",
+                "autoupdate": true
+            }
+        }
     }
 }
