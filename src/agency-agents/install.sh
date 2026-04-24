@@ -255,4 +255,8 @@ if [ -n "$remote_final_commit" ]; then
   echo "$remote_final_commit" > "$commit_file"
 fi
 
+# Copy install.sh for postStartCommand autoupdate
+cp "$0" "$marker_dir/agency-agents-install.sh"
+chmod +x "$marker_dir/agency-agents-install.sh"
+
 log "Installation completed for tool '$tool'."
