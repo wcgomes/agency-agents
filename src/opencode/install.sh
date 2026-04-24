@@ -97,7 +97,7 @@ autoupdate_check() {
 USERNAME="${USERNAME:-"${_REMOTE_USER:-vscode}"}"
 USER_HOME="${_REMOTE_USER_HOME:-"/home/${USERNAME}"}"
 VERSION="${VERSION:-}"
-AUTOUPDATE="${OPENCODE_AUTOUPDATE:-${AUTOUPDATE:-false}}"
+AUTOUPDATE="${OPENCODE_AUTOUPDATE:-${AUTOUPDATE:-true}}"
 
 # Validação do nome de usuário
 case "$USERNAME" in

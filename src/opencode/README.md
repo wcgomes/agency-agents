@@ -17,7 +17,7 @@ Installs the opencode AI coding agent CLI and ensures volume-mounted data direct
 |-----|-----|-----|-----|
 | username | Username to install opencode for. Defaults to _REMOTE_USER (the container's remote user). | string | - |
 | version | Version to install (e.g. 1.3.17). Empty = latest. | string | - |
-| autoupdate | Enable auto-upgrade on container start. | boolean | false |
+| autoupdate | Enable auto-upgrade on container start. | boolean | true |
 
 ## Customizations
 
