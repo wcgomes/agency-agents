@@ -73,9 +73,31 @@ ensure_prerequisites() {
   [ -f /etc/ssl/certs/ca-certificates.crt ] || fail "Falha na instalação de dependências: certificados CA ainda estão ausentes"
 }
 
+autoupdate_check() {
+  local autoupdate="$1"
+
+  if [ "$autoupdate" != "true" ]; then
+    return 0
+  fi
+
+  if ! command -v opencode >/dev/null 2>&1; then
+    log "Autoupdate: skipped (opencode not in PATH)"
+    return 0
+  fi
+
+  log "Autoupdate: checking for updates..."
+
+  if opencode upgrade >/dev/null 2>&1; then
+    log "Autoupdate: upgraded"
+  else
+    log "Autoupdate: failed"
+  fi
+}
+
 USERNAME="${USERNAME:-"${_REMOTE_USER:-vscode}"}"
 USER_HOME="${_REMOTE_USER_HOME:-"/home/${USERNAME}"}"
 VERSION="${VERSION:-}"
+AUTOUPDATE="${OPENCODE_AUTOUPDATE:-${AUTOUPDATE:-false}}"
 
 # Validação do nome de usuário
 case "$USERNAME" in
@@ -94,7 +116,7 @@ fi
 
 # Verificação de idempotência
 marker_dir="/usr/local/share/devcontainer-features"
-marker_file="$marker_dir/opencode-v1-${USERNAME}${VERSION:+-}${VERSION}.done"
+marker_file="$marker_dir/opencode-v1-${USERNAME}-latest.done"
 
 if [ -f "$marker_file" ]; then
   log "Instalação já realizada para o usuário '$USERNAME'. Ignorando."

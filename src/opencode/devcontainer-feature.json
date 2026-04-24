@@ -1,7 +1,7 @@
 {
 	"name": "opencode CLI",
 	"id": "opencode",
-	"version": "0.2.5",
+	"version": "0.3.0",
 	"description": "Installs the opencode AI coding agent CLI and ensures volume-mounted data directories are owned by the correct user.",
 	"documentationURL": "https://opencode.ai",
 	"options": {
@@ -14,6 +14,11 @@
 			"type": "string",
 			"default": "",
 			"description": "Version to install (e.g. 1.3.17). Empty = latest."
+		},
+		"autoupdate": {
+			"type": "boolean",
+			"default": false,
+			"description": "Enable auto-upgrade on container start"
 		}
 	},
 	"customizations": {
@@ -23,6 +28,6 @@
 			]
 		}
 	},
-	"postStartCommand": "bash /usr/local/bin/opencode-fix-permissions",
+	"postStartCommand": "bash -c 'if [ \"${OPENCODE_AUTOUPDATE:-false}\" = \"true\" ]; then opencode upgrade --yes 2>/dev/null || true; fi; bash /usr/local/bin/opencode-fix-permissions'",
 	"installsAfter": ["ghcr.io/devcontainers/features/common-utils"]
 }
