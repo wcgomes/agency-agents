@@ -116,7 +116,7 @@ fi
 
 # Verificação de idempotência
 marker_dir="/usr/local/share/devcontainer-features"
-marker_file="$marker_dir/opencode-v1-${USERNAME}-latest.done"
+marker_file="$marker_dir/opencode-v1-${USERNAME}${VERSION:+-}${VERSION:-latest}.done"
 
 if [ -f "$marker_file" ]; then
   log "Instalação já realizada para o usuário '$USERNAME'. Ignorando."
