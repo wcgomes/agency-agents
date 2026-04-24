@@ -16,6 +16,7 @@ A complete AI agency at your fingertips - From frontend wizards to Reddit commun
 | Options Id | Description | Type | Default Value |
 |-----|-----|-----|-----|
 | tool | Tool name passed to ./scripts/install.sh --tool <tool>. Use 'auto' for --parallel auto-detection. | string | auto |
+| autoupdate | Check for updates on container start | boolean | true |
 
 # Agency Agents Feature - Additional Notes
 
