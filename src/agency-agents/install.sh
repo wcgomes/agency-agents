@@ -146,9 +146,9 @@ if [ -z "$target_home" ]; then
   target_home="/home/$target_user"
 fi
 
-# v1 marker uses fixed 'vscode' to ensure postStartCommand finds the same marker.
-marker_file="$marker_dir/agency-agents-v1-${tool}.done"
-commit_file="$marker_dir/agency-agents-v1-${tool}.commit"
+# v1 marker is tool-agnostic since postStartCommand uses auto tool detection.
+marker_file="$marker_dir/agency-agents-v1.done"
+commit_file="$marker_dir/agency-agents-v1.commit"
 
 if [ -f "$marker_file" ]; then
   log "Installation already completed for tool '$tool'."
