@@ -147,10 +147,12 @@ if [ -z "$target_home" ]; then
 fi
 
 # v1 marker is tool-agnostic since postStartCommand uses auto tool detection.
+# Also maintain per-tool markers for test compatibility.
 marker_file="$marker_dir/agency-agents-v1.done"
 commit_file="$marker_dir/agency-agents-v1.commit"
+tool_marker="$marker_dir/agency-agents-v1-${tool}.done"
 
-if [ -f "$marker_file" ]; then
+if [ -f "$marker_file" ] || [ -f "$tool_marker" ]; then
   log "Installation already completed for tool '$tool'."
   autoupdate_check
   exit 0
@@ -249,6 +251,7 @@ else
 fi
 
 touch "$marker_file"
+touch "$tool_marker"
 
 remote_final_commit="$(get_remote_commit)"
 if [ -n "$remote_final_commit" ]; then
