@@ -302,4 +302,11 @@ fi
 cp "$0" "$marker_dir/agency-agents-install.sh"
 chmod +x "$marker_dir/agency-agents-install.sh"
 
+# Copy postStartCommand.sh
+poststart_script="$(dirname "$0")/postStartCommand.sh"
+if [ -f "$poststart_script" ]; then
+  cp "$poststart_script" "$marker_dir/agency-agents-postStartCommand.sh"
+  chmod +x "$marker_dir/agency-agents-postStartCommand.sh"
+fi
+
 log "Installation completed for tool '$tool'."

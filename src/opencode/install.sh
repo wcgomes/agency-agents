@@ -219,4 +219,10 @@ chmod +x /usr/local/bin/opencode-fix-permissions
 mkdir -p "$marker_dir"
 touch "$marker_file"
 
+poststart_script="$(dirname "$0")/postStartCommand.sh"
+if [ -f "$poststart_script" ]; then
+  cp "$poststart_script" "$marker_dir/opencode-postStartCommand.sh"
+  chmod +x "$marker_dir/opencode-postStartCommand.sh"
+fi
+
 log "Instalação concluída"
