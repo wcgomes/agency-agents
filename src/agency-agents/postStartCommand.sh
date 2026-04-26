@@ -120,6 +120,7 @@ do_install() {
   local remote_final_commit
   remote_final_commit="$(get_remote_commit)"
   if [ -n "$remote_final_commit" ]; then
+    mkdir -p "$(dirname "$COMMIT_FILE")"
     echo "$remote_final_commit" > "$COMMIT_FILE"
   fi
 

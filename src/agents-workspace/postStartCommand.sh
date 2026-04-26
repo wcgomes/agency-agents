@@ -71,12 +71,12 @@ do_install() {
 
   local remote_final_commit
   remote_final_commit="$(get_remote_commit "wcgomes/agents-workspace")"
-  [ -n "$remote_final_commit" ] && echo "$remote_final_commit" > "$COMMIT_FILE" && log "Saved agents-workspace commit: $remote_final_commit"
+  [ -n "$remote_final_commit" ] && mkdir -p "$(dirname "$COMMIT_FILE")" && echo "$remote_final_commit" > "$COMMIT_FILE" && log "Saved agents-workspace commit: $remote_final_commit"
 
   if [ "$includeAgency" = "true" ]; then
     local remote_agency_commit
     remote_agency_commit="$(get_remote_commit "msitarzewski/agency-agents")"
-    [ -n "$remote_agency_commit" ] && echo "$remote_agency_commit" > "$AGENCY_COMMIT_FILE" && log "Saved agency-agents commit: $remote_agency_commit"
+    [ -n "$remote_agency_commit" ] && mkdir -p "$(dirname "$AGENCY_COMMIT_FILE")" && echo "$remote_agency_commit" > "$AGENCY_COMMIT_FILE" && log "Saved agency-agents commit: $remote_agency_commit"
   fi
 
   log "Installation completed for tool '$tool'."
