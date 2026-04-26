@@ -1,7 +1,6 @@
 #!/bin/bash
 set -euo pipefail
 
-INSTALL_SCRIPT="/usr/local/share/devcontainer-features/agents-workspace-install.sh"
 MARKER="${HOME}/.local/share/devcontainer-features/agents-workspace.done"
 
 TARGET_USER="${USER:-$(whoami)}"
@@ -30,9 +29,8 @@ get_remote_commit() {
 }
 
 download_install_script() {
-  log "Downloading install script..."
-  local tmp_script
-  tmp_script="$(mktemp /tmp/agents-workspace-install-XXXXXX.sh)"
+  log "Downloading install script to /tmp..."
+  local tmp_script="/tmp/agents-workspace-install.sh"
   if command -v curl >/dev/null 2>&1; then
     curl -fsSL "https://raw.githubusercontent.com/wcgomes/agents-workspace/main/tools/install.sh" -o "$tmp_script" \
       || fail "Failed to download install.sh"
@@ -41,8 +39,8 @@ download_install_script() {
       || fail "Failed to download install.sh"
   fi
   chmod +x "$tmp_script"
-  mv "$tmp_script" "$INSTALL_SCRIPT"
   log "Install script downloaded"
+  echo "$tmp_script"
 }
 
 do_install() {
@@ -70,7 +68,7 @@ do_install() {
 
   mkdir -p "$marker_dir"
 
-  local install_script="$INSTALL_SCRIPT"
+  install_script="$(download_install_script)"
   log "Running install script..."
   export HOME="$TARGET_HOME"
   bash "$install_script" --all || log "Install completed with warnings"
@@ -126,7 +124,6 @@ if [ -f "$MARKER" ]; then
 
         if [ "$needs_update" = "true" ]; then
           log "Updates available, updating..."
-          download_install_script
           rm -f "$MARKER"
           rm -f "$commit_file"
           [ "$includeAgency" = "true" ] && rm -f "$agency_commit_file"
@@ -146,7 +143,6 @@ if [ -f "$MARKER" ]; then
 fi
 
 log "First installation..."
-download_install_script
 do_install
 
 mkdir -p "$(dirname "$MARKER")"
