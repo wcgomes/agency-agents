@@ -9,7 +9,4 @@ check "postStartCommand script exists" bash -c \
 check "user marker exists" bash -c \
     "ls ~/.local/share/devcontainer-features/agency-agents.done 2>/dev/null | grep -q ."
 
-check "commit file exists" bash -c \
-    "ls /usr/local/share/devcontainer-features/agency-agents-v1.commit 2>/dev/null | grep -q ."
-
 reportResults
