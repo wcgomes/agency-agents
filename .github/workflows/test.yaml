@@ -14,6 +14,7 @@ jobs:
       matrix:
         features:
           - agency-agents
+          - agents-workspace
           - opencode
         baseImage:
           - debian:latest
@@ -35,6 +36,7 @@ jobs:
       matrix:
         features:
           - agency-agents
+          - agents-workspace
           - opencode
     steps:
       - uses: actions/checkout@v4
