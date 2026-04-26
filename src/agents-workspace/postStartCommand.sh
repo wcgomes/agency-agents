@@ -124,6 +124,7 @@ if [ -f "$MARKER" ]; then
           rm -f "$commit_file"
           [ "$includeAgency" = "true" ] && rm -f "$agency_commit_file"
           do_install
+          mkdir -p "$(dirname "$MARKER")"
           touch "$MARKER"
           log "Update complete"
           exit 0
@@ -140,5 +141,6 @@ fi
 log "First installation..."
 do_install
 
+mkdir -p "$(dirname "$MARKER")"
 touch "$MARKER"
 log "Installation complete, marker created at $MARKER"
