@@ -2,6 +2,7 @@
 set -euo pipefail
 
 MARKER="${HOME}/.local/share/devcontainer-features/agency-agents.done"
+COMMIT_FILE="${HOME}/.local/share/devcontainer-features/agency-agents.commit"
 
 TARGET_USER="${USER:-$(whoami)}"
 [ -z "$TARGET_USER" ] && TARGET_USER="$(getent passwd | awk -F: '$3 >= 1000 {print $1; exit 0}')"
@@ -29,9 +30,7 @@ get_remote_commit() {
 do_install() {
   log "Starting installation for user '$TARGET_USER'..."
 
-  local marker_dir="/usr/local/share/devcontainer-features"
   local tool="${TOOL:-auto}"
-  local commit_file="$marker_dir/agency-agents-v1.commit"
 
   local TARGET_HOME
   TARGET_HOME="$(getent passwd "$TARGET_USER" | cut -d: -f6)"
@@ -118,31 +117,28 @@ do_install() {
     log "OpenCode agents installed globally."
   fi
 
-  # marker files removed - using user marker in HOME instead
-
   local remote_final_commit
   remote_final_commit="$(get_remote_commit)"
   if [ -n "$remote_final_commit" ]; then
-    echo "$remote_final_commit" > "$commit_file"
+    echo "$remote_final_commit" > "$COMMIT_FILE"
   fi
 
-log "Installation completed for tool '$tool'."
+  log "Installation completed for tool '$tool'."
 }
 
 if [ -f "$MARKER" ]; then
   if [ "$AUTOUPDATE" = "true" ]; then
     log "Marker found, checking for updates..."
-    local commit_file="/usr/local/share/devcontainer-features/agency-agents-v1.commit"
-    if [ -f "$commit_file" ] && [ -s "$commit_file" ]; then
+    if [ -f "$COMMIT_FILE" ] && [ -s "$COMMIT_FILE" ]; then
       local installed_commit
-      installed_commit="$(cat "$commit_file")"
+      installed_commit="$(cat "$COMMIT_FILE")"
       if [ -n "$installed_commit" ]; then
         local remote_commit
         remote_commit="$(get_remote_commit)"
         if [ -n "$remote_commit" ] && [ "$remote_commit" != "$installed_commit" ]; then
           log "Update available ($installed_commit → $remote_commit), updating..."
           rm -f "$MARKER"
-          rm -f "$commit_file"
+          rm -f "$COMMIT_FILE"
           do_install
           mkdir -p "$(dirname "$MARKER")"
           touch "$MARKER"
