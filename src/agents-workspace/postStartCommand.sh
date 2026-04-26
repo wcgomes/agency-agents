@@ -33,14 +33,22 @@ get_remote_commit() {
 download_install_script() {
   local tmp_script="/tmp/agents-workspace-install.sh"
   log "Downloading install script..."
+  local download_failed=false
   if command -v curl >/dev/null 2>&1; then
-    curl -fsSL "https://raw.githubusercontent.com/wcgomes/agents-workspace/main/tools/install.sh" -o "$tmp_script" \
-      || fail "Failed to download install.sh"
+    if ! curl -fsSL "https://raw.githubusercontent.com/wcgomes/agents-workspace/main/tools/install.sh" -o "$tmp_script" --fail; then
+      download_failed=true
+    fi
   else
-    wget -qO "$tmp_script" "https://raw.githubusercontent.com/wcgomes/agents-workspace/main/tools/install.sh" \
-      || fail "Failed to download install.sh"
+    if ! wget -qO "$tmp_script" "https://raw.githubusercontent.com/wcgomes/agents-workspace/main/tools/install.sh" 2>/dev/null; then
+      download_failed=true
+    fi
+  fi
+  if [ "$download_failed" = "true" ]; then
+    fail "Failed to download install.sh"
   fi
   chmod +x "$tmp_script"
+  [ -f "$tmp_script" ] || fail "Downloaded install script not found: $tmp_script"
+  log "Downloaded install script successfully"
   echo "$tmp_script"
 }
 
