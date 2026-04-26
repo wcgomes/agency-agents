@@ -8,6 +8,7 @@ This repository provides a collection of [dev container Features](https://contai
 |---------|-------------|---------------|
 | `opencode` | AI coding agent CLI | [src/opencode/README.md](src/opencode/README.md) |
 | `agency-agents` | AI agent set for a complete AI agency at your fingertips | [src/agency-agents/README.md](src/agency-agents/README.md) |
+| `agents-workspace` | AI agent workspace with specialist agents for orchestrated, minimal, and self-learning workflows | [src/agents-workspace/README.md](src/agents-workspace/README.md) |
 
 ---
 
