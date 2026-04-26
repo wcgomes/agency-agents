@@ -2,6 +2,8 @@
 set -euo pipefail
 
 MARKER="${HOME}/.local/share/devcontainer-features/agents-workspace.done"
+COMMIT_FILE="${HOME}/.local/share/devcontainer-features/agents-workspace.commit"
+AGENCY_COMMIT_FILE="${HOME}/.local/share/devcontainer-features/agency-agents.commit"
 
 TARGET_USER="${USER:-$(whoami)}"
 [ -z "$TARGET_USER" ] && TARGET_USER="$(getent passwd | awk -F: '$3 >= 1000 {print $1; exit 0}')"
@@ -45,11 +47,8 @@ download_install_script() {
 do_install() {
   log "Starting installation for user '$TARGET_USER'..."
 
-  local marker_dir="/usr/local/share/devcontainer-features"
   local tool="${TOOL:-all}"
   local includeAgency="${INCLUDEAGENCY:-true}"
-  local commit_file="$marker_dir/agents-workspace-v1.commit"
-  local agency_commit_file="$marker_dir/agency-agents-v1.commit"
 
   local TARGET_HOME
   TARGET_HOME="$(getent passwd "$TARGET_USER" | cut -d: -f6)"
@@ -64,8 +63,6 @@ do_install() {
   }
   trap cleanup EXIT
 
-  mkdir -p "$marker_dir" 2>/dev/null || true
-
   local install_script
   install_script="$(download_install_script)"
   log "Running install script from $install_script..."
@@ -74,12 +71,12 @@ do_install() {
 
   local remote_final_commit
   remote_final_commit="$(get_remote_commit "wcgomes/agents-workspace")"
-  [ -n "$remote_final_commit" ] && echo "$remote_final_commit" > "$commit_file" && log "Saved agents-workspace commit: $remote_final_commit"
+  [ -n "$remote_final_commit" ] && echo "$remote_final_commit" > "$COMMIT_FILE" && log "Saved agents-workspace commit: $remote_final_commit"
 
   if [ "$includeAgency" = "true" ]; then
     local remote_agency_commit
     remote_agency_commit="$(get_remote_commit "msitarzewski/agency-agents")"
-    [ -n "$remote_agency_commit" ] && echo "$remote_agency_commit" > "$agency_commit_file" && log "Saved agency-agents commit: $remote_agency_commit"
+    [ -n "$remote_agency_commit" ] && echo "$remote_agency_commit" > "$AGENCY_COMMIT_FILE" && log "Saved agency-agents commit: $remote_agency_commit"
   fi
 
   log "Installation completed for tool '$tool'."
@@ -88,13 +85,11 @@ do_install() {
 if [ -f "$MARKER" ]; then
   if [ "$AUTOUPDATE" = "true" ]; then
     log "Marker found, checking for updates..."
-    local commit_file="/usr/local/share/devcontainer-features/agents-workspace-v1.commit"
-    local agency_commit_file="/usr/local/share/devcontainer-features/agency-agents-v1.commit"
     local includeAgency="$INCLUDEAGENCY"
 
-    if [ -f "$commit_file" ] && [ -s "$commit_file" ]; then
+    if [ -f "$COMMIT_FILE" ] && [ -s "$COMMIT_FILE" ]; then
       local installed_agents_workspace_commit
-      installed_agents_workspace_commit="$(cat "$commit_file")"
+      installed_agents_workspace_commit="$(cat "$COMMIT_FILE")"
       if [ -n "$installed_agents_workspace_commit" ]; then
         local remote_agents_workspace_commit
         remote_agents_workspace_commit="$(get_remote_commit "wcgomes/agents-workspace")"
@@ -105,9 +100,9 @@ if [ -f "$MARKER" ]; then
           needs_update=true
         fi
 
-        if [ "$includeAgency" = "true" ] && [ -f "$agency_commit_file" ]; then
+        if [ "$includeAgency" = "true" ] && [ -f "$AGENCY_COMMIT_FILE" ]; then
           local installed_agency_agents_commit
-          installed_agency_agents_commit="$(cat "$agency_commit_file")"
+          installed_agency_agents_commit="$(cat "$AGENCY_COMMIT_FILE")"
           if [ -n "$installed_agency_agents_commit" ]; then
             local remote_agency_agents_commit
             remote_agency_agents_commit="$(get_remote_commit "msitarzewski/agency-agents")"
@@ -121,8 +116,8 @@ if [ -f "$MARKER" ]; then
         if [ "$needs_update" = "true" ]; then
           log "Updates available, updating..."
           rm -f "$MARKER"
-          rm -f "$commit_file"
-          [ "$includeAgency" = "true" ] && rm -f "$agency_commit_file"
+          rm -f "$COMMIT_FILE"
+          [ "$includeAgency" = "true" ] && rm -f "$AGENCY_COMMIT_FILE"
           do_install
           mkdir -p "$(dirname "$MARKER")"
           touch "$MARKER"
