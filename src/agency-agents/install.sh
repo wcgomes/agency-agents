@@ -2,7 +2,7 @@
 set -eu
 
 log() {
-  echo "[agency-agents-feature] $*"
+  echo "[agency-agents-feature] $*" >&2
 }
 
 fail() {

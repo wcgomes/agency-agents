@@ -14,7 +14,7 @@ export TOOL="${TOOL:-auto}"
 export AUTOUPDATE="${AUTOUPDATE:-true}"
 
 log() {
-  echo "[agency-agents-poststart] $*"
+  echo "[agency-agents-poststart] $*" >&2
 }
 
 fail() {
