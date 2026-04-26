@@ -284,4 +284,11 @@ fi
 cp "$0" "$marker_dir/agents-workspace-install.sh"
 chmod +x "$marker_dir/agents-workspace-install.sh"
 
+# Copy postStartCommand.sh
+poststart_script="$(dirname "$0")/postStartCommand.sh"
+if [ -f "$poststart_script" ]; then
+  cp "$poststart_script" "$marker_dir/agents-workspace-postStartCommand.sh"
+  chmod +x "$marker_dir/agents-workspace-postStartCommand.sh"
+fi
+
 log "Installation completed for tool '$tool'."
