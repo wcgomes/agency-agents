@@ -97,10 +97,19 @@ do_install() {
   log "Installing for user '$TARGET_USER' (HOME=$TARGET_HOME)..."
   chown -R "$TARGET_USER":"$TARGET_USER" "$tmp_dir"
   chmod -R u+rwX,go+rX "$tmp_dir"
-  if [ "$tool" = "auto" ]; then
-    su - "$TARGET_USER" -c "cd '$repo_dir' && HOME='$TARGET_HOME' ./scripts/install.sh --no-interactive --parallel"
+
+  if [ "$(id -un)" = "$TARGET_USER" ]; then
+    if [ "$tool" = "auto" ]; then
+      cd "$repo_dir" && HOME="$TARGET_HOME" ./scripts/install.sh --no-interactive --parallel
+    else
+      cd "$repo_dir" && HOME="$TARGET_HOME" ./scripts/install.sh --tool "$tool" --no-interactive
+    fi
   else
-    su - "$TARGET_USER" -c "cd '$repo_dir' && HOME='$TARGET_HOME' ./scripts/install.sh --tool '$tool' --no-interactive"
+    if [ "$tool" = "auto" ]; then
+      su - "$TARGET_USER" -c "cd '$repo_dir' && HOME='$TARGET_HOME' ./scripts/install.sh --no-interactive --parallel"
+    else
+      su - "$TARGET_USER" -c "cd '$repo_dir' && HOME='$TARGET_HOME' ./scripts/install.sh --tool '$tool' --no-interactive"
+    fi
   fi
 
   if should_install_opencode && [ -d "$opencode_agents_src" ]; then
