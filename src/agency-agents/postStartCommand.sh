@@ -47,15 +47,24 @@ do_install() {
   local zip_file="$tmp_dir/agency-agents.zip"
 
   log "Downloading repository ZIP..."
+  local download_failed=false
   if command -v curl >/dev/null 2>&1; then
-    curl -fsSL "https://github.com/msitarzewski/agency-agents/archive/refs/heads/main.zip" -o "$zip_file" \
-      || curl -fsSL "https://github.com/msitarzewski/agency-agents/archive/refs/heads/master.zip" -o "$zip_file" \
-      || fail "Unable to download repository ZIP (main/master)."
+    if ! curl -fsSL "https://github.com/msitarzewski/agency-agents/archive/refs/heads/main.zip" -o "$zip_file" --fail; then
+      if ! curl -fsSL "https://github.com/msitarzewski/agency-agents/archive/refs/heads/master.zip" -o "$zip_file" --fail; then
+        download_failed=true
+      fi
+    fi
   else
-    wget -qO "$zip_file" "https://github.com/msitarzewski/agency-agents/archive/refs/heads/main.zip" \
-      || wget -qO "$zip_file" "https://github.com/msitarzewski/agency-agents/archive/refs/heads/master.zip" \
-      || fail "Unable to download repository ZIP (main/master)."
+    if ! wget -qO "$zip_file" "https://github.com/msitarzewski/agency-agents/archive/refs/heads/main.zip" 2>/dev/null; then
+      if ! wget -qO "$zip_file" "https://github.com/msitarzewski/agency-agents/archive/refs/heads/master.zip" 2>/dev/null; then
+        download_failed=true
+      fi
+    fi
   fi
+  if [ "$download_failed" = "true" ]; then
+    fail "Unable to download repository ZIP (main/master)."
+  fi
+  [ -f "$zip_file" ] || fail "Downloaded ZIP not found: $zip_file"
 
   log "Extracting repository ZIP..."
   unzip -q "$zip_file" -d "$tmp_dir"
