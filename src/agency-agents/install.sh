@@ -136,21 +136,40 @@ case "$tool" in
     ;;
 esac
 
+detect_user() {
+  local user=""
+  if [ -n "${_REMOTE_USER:-}" ]; then
+    user="$_REMOTE_USER"
+  elif [ -n "$USERNAME" ]; then
+    user="$USERNAME"
+  else
+    user="$(getent passwd 1000 | cut -d: -f1)" || true
+    [ -z "$user" ] && user="$(whoami 2>/dev/null)" || true
+    [ -z "$user" ] && user="vscode"
+  fi
+
+  if [ -d "/home/$user" ]; then
+    echo "$user"
+  elif [ -d "/root" ] && [ "$user" = "root" ]; then
+    getent passwd | cut -d: -f1 | grep -v "^root$" | head -1 || echo "vscode"
+  else
+    echo "$user"
+  fi
+}
+
 ensure_prerequisites
 
 marker_dir="/usr/local/share/devcontainer-features"
 
-target_user="${_REMOTE_USER:-vscode}"
-target_home="$(getent passwd "$target_user" | cut -d: -f6 || true)"
-if [ -z "$target_home" ]; then
-  target_home="/home/$target_user"
-fi
+TARGET_USER="$(detect_user)"
+TARGET_HOME="$(getent passwd "$TARGET_USER" | cut -d: -f6)"
+[ -z "$TARGET_HOME" ] && TARGET_HOME="/home/$TARGET_USER"
 
 # v1 marker is tool-agnostic since postStartCommand uses auto tool detection.
 # Also maintain per-tool markers for test compatibility.
-marker_file="$marker_dir/agency-agents-v1-${target_user}.done"
+marker_file="$marker_dir/agency-agents-v1-${TARGET_USER}.done"
 commit_file="$marker_dir/agency-agents-v1.commit"
-tool_marker="$marker_dir/agency-agents-v1-${tool}-${target_user}.done"
+tool_marker="$marker_dir/agency-agents-v1-${tool}-${TARGET_USER}.done"
 
 if [ -f "$marker_file" ] || [ -f "$tool_marker" ]; then
   log "Installation already completed for tool '$tool'."
@@ -215,7 +234,7 @@ else
 fi
 
 opencode_agents_src="$repo_dir/integrations/opencode/agents"
-opencode_agents_global="$target_home/.config/opencode/agents"
+opencode_agents_global="$TARGET_HOME/.config/opencode/agents"
 
 should_install_opencode() {
   case "$tool" in
@@ -224,20 +243,20 @@ should_install_opencode() {
   esac
 }
 
-if [ "$(id -u)" -eq 0 ] && [ "$target_user" != "root" ] && id "$target_user" >/dev/null 2>&1; then
-  log "Installing for user '$target_user' (HOME=$target_home)..."
-  chown -R "$target_user":"$target_user" "$tmp_dir"
+if [ "$(id -u)" -eq 0 ] && [ "$TARGET_USER" != "root" ] && id "$TARGET_USER" >/dev/null 2>&1; then
+  log "Installing for user '$TARGET_USER' (HOME=$TARGET_HOME)..."
+  chown -R "$TARGET_USER":"$TARGET_USER" "$tmp_dir"
   chmod -R u+rwX,go+rX "$tmp_dir"
   if [ "$tool" = "auto" ]; then
-    su - "$target_user" -c "cd '$repo_dir' && HOME='$target_home' ./scripts/install.sh --no-interactive --parallel"
+    su - "$TARGET_USER" -c "cd '$repo_dir' && HOME='$TARGET_HOME' ./scripts/install.sh --no-interactive --parallel"
   else
-    su - "$target_user" -c "cd '$repo_dir' && HOME='$target_home' ./scripts/install.sh --tool '$tool' --no-interactive"
+    su - "$TARGET_USER" -c "cd '$repo_dir' && HOME='$TARGET_HOME' ./scripts/install.sh --tool '$tool' --no-interactive"
   fi
   if should_install_opencode && [ -d "$opencode_agents_src" ]; then
     log "Installing OpenCode agents globally to $opencode_agents_global..."
     mkdir -p "$opencode_agents_global"
     cp "$opencode_agents_src"/*.md "$opencode_agents_global/" 2>/dev/null || true
-    chown -R "$target_user":"$target_user" "$opencode_agents_global"
+    chown -R "$TARGET_USER":"$TARGET_USER" "$opencode_agents_global"
     log "OpenCode agents installed globally."
   fi
 else

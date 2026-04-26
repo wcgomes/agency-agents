@@ -94,8 +94,33 @@ autoupdate_check() {
   fi
 }
 
-USERNAME="${USERNAME:-"${_REMOTE_USER:-vscode}"}"
-USER_HOME="${_REMOTE_USER_HOME:-"/home/${USERNAME}"}"
+detect_user() {
+  local user=""
+  if [ -n "${_REMOTE_USER:-}" ]; then
+    user="$_REMOTE_USER"
+  elif [ -n "$USERNAME" ]; then
+    user="$USERNAME"
+  else
+    user="$(getent passwd 1000 | cut -d: -f1)" || true
+    [ -z "$user" ] && user="$(whoami 2>/dev/null)" || true
+    [ -z "$user" ] && user="vscode"
+  fi
+
+  if [ -d "/home/$user" ]; then
+    echo "$user"
+  elif [ -d "/root" ] && [ "$user" = "root" ]; then
+    getent passwd | cut -d: -f1 | grep -v "^root$" | head -1 || echo "vscode"
+  else
+    echo "$user"
+  fi
+}
+
+TARGET_USER="$(detect_user)"
+TARGET_HOME="$(getent passwd "$TARGET_USER" | cut -d: -f6)"
+[ -z "$TARGET_HOME" ] && TARGET_HOME="/home/$TARGET_USER"
+
+USERNAME="$TARGET_USER"
+USER_HOME="$TARGET_HOME"
 VERSION="${VERSION:-}"
 AUTOUPDATE="${OPENCODE_AUTOUPDATE:-${AUTOUPDATE:-true}}"
 
