@@ -146,9 +146,6 @@ tool="${TOOL:-${FEATURE_OPTION_TOOL:-all}}"
 includeAgency="${AGENTS_WORKSPACE_INCLUDE_AGENCY:-${INCLUDEAGENCY:-${FEATURE_OPTION_INCLUDE_AGENCY:-true}}}"
 autoupdate="${AGENTS_WORKSPACE_AUTOUPDATE:-${AUTOUPDATE:-true}}"
 
-# Determine target username (allow overriding via env). Use _REMOTE_USER if provided by devcontainer.
-USERNAME="${USERNAME:-${_REMOTE_USER:-node}}"
-
 case "$tool" in
   "")
     fail "Option 'tool' cannot be empty."
@@ -157,6 +154,31 @@ case "$tool" in
     fail "Option 'tool' contains invalid characters: '$tool'."
     ;;
 esac
+
+detect_user() {
+  local user=""
+  if [ -n "${_REMOTE_USER:-}" ]; then
+    user="$_REMOTE_USER"
+  elif [ -n "$USERNAME" ]; then
+    user="$USERNAME"
+  else
+    user="$(getent passwd 1000 | cut -d: -f1)" || true
+    [ -z "$user" ] && user="$(whoami 2>/dev/null)" || true
+    [ -z "$user" ] && user="node"
+  fi
+
+  if [ -d "/home/$user" ]; then
+    echo "$user"
+  elif [ -d "/root" ] && [ "$user" = "root" ]; then
+    getent passwd | cut -d: -f1 | grep -v "^root$" | head -1 || echo "vscode"
+  else
+    echo "$user"
+  fi
+}
+
+TARGET_USER="$(detect_user)"
+TARGET_HOME="$(getent passwd "$TARGET_USER" | cut -d: -f6)"
+[ -z "$TARGET_HOME" ] && TARGET_HOME="/home/$TARGET_USER"
 
 case "$includeAgency" in
   true|false) ;;
@@ -170,10 +192,10 @@ ensure_prerequisites
 marker_dir="/usr/local/share/devcontainer-features"
 
 # Use a per-user marker so build-time (root) installs don't block user postStart installs
-marker_file="$marker_dir/agents-workspace-v1-${USERNAME}.done"
+marker_file="$marker_dir/agents-workspace-v1-${TARGET_USER}.done"
 commit_file="$marker_dir/agents-workspace-v1.commit"
 agency_commit_file="$marker_dir/agency-agents-v1.commit"
-tool_marker="$marker_dir/agents-workspace-v1-${tool}-${USERNAME}.done"
+tool_marker="$marker_dir/agents-workspace-v1-${tool}-${TARGET_USER}.done"
 
 if [ -f "$marker_file" ] || [ -f "$tool_marker" ]; then
   log "Installation already completed for tool '$tool'."
@@ -236,6 +258,7 @@ if [ "$includeAgency" != "true" ]; then
 fi
 
 log "Running install.sh $install_args..."
+export HOME="$TARGET_HOME"
 bash "$install_script" $install_args || log "Install completed with warnings (some tools may not be available)."
 
 touch "$marker_file"
