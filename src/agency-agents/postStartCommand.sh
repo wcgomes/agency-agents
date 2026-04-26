@@ -31,9 +31,7 @@ do_install() {
 
   local marker_dir="/usr/local/share/devcontainer-features"
   local tool="${TOOL:-auto}"
-  local marker_file="$marker_dir/agency-agents-v1-${TARGET_USER}.done"
   local commit_file="$marker_dir/agency-agents-v1.commit"
-  local tool_marker="$marker_dir/agency-agents-v1-${tool}-${TARGET_USER}.done"
 
   local TARGET_HOME
   TARGET_HOME="$(getent passwd "$TARGET_USER" | cut -d: -f6)"
@@ -120,8 +118,7 @@ do_install() {
     log "OpenCode agents installed globally."
   fi
 
-  touch "$marker_file"
-  touch "$tool_marker"
+  # marker files removed - using user marker in HOME instead
 
   local remote_final_commit
   remote_final_commit="$(get_remote_commit)"
@@ -129,7 +126,7 @@ do_install() {
     echo "$remote_final_commit" > "$commit_file"
   fi
 
-  log "Installation completed for tool '$tool'."
+log "Installation completed for tool '$tool'."
 }
 
 if [ -f "$MARKER" ]; then
