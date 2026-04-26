@@ -29,8 +29,8 @@ get_remote_commit() {
 }
 
 download_install_script() {
-  log "Downloading install script to /tmp..."
   local tmp_script="/tmp/agents-workspace-install.sh"
+  log "Downloading install script..."
   if command -v curl >/dev/null 2>&1; then
     curl -fsSL "https://raw.githubusercontent.com/wcgomes/agents-workspace/main/tools/install.sh" -o "$tmp_script" \
       || fail "Failed to download install.sh"
@@ -39,7 +39,6 @@ download_install_script() {
       || fail "Failed to download install.sh"
   fi
   chmod +x "$tmp_script"
-  log "Install script downloaded"
   echo "$tmp_script"
 }
 
@@ -49,10 +48,8 @@ do_install() {
   local marker_dir="/usr/local/share/devcontainer-features"
   local tool="${TOOL:-all}"
   local includeAgency="${INCLUDEAGENCY:-true}"
-  local marker_file="$marker_dir/agents-workspace-v1-${TARGET_USER}.done"
   local commit_file="$marker_dir/agents-workspace-v1.commit"
   local agency_commit_file="$marker_dir/agency-agents-v1.commit"
-  local tool_marker="$marker_dir/agents-workspace-v1-${tool}-${TARGET_USER}.done"
 
   local TARGET_HOME
   TARGET_HOME="$(getent passwd "$TARGET_USER" | cut -d: -f6)"
@@ -63,18 +60,17 @@ do_install() {
   CLEANUP_DIR="$tmp_dir"
   cleanup() {
     rm -rf "$CLEANUP_DIR"
+    rm -f /tmp/agents-workspace-install.sh
   }
   trap cleanup EXIT
 
-  mkdir -p "$marker_dir"
+  mkdir -p "$marker_dir" 2>/dev/null || true
 
+  local install_script
   install_script="$(download_install_script)"
-  log "Running install script..."
+  log "Running install script from $install_script..."
   export HOME="$TARGET_HOME"
   bash "$install_script" --all || log "Install completed with warnings"
-
-  touch "$marker_file"
-  touch "$tool_marker"
 
   local remote_final_commit
   remote_final_commit="$(get_remote_commit "wcgomes/agents-workspace")"
@@ -128,7 +124,6 @@ if [ -f "$MARKER" ]; then
           rm -f "$commit_file"
           [ "$includeAgency" = "true" ] && rm -f "$agency_commit_file"
           do_install
-          mkdir -p "$(dirname "$MARKER")"
           touch "$MARKER"
           log "Update complete"
           exit 0
@@ -145,6 +140,5 @@ fi
 log "First installation..."
 do_install
 
-mkdir -p "$(dirname "$MARKER")"
 touch "$MARKER"
 log "Installation complete, marker created at $MARKER"
