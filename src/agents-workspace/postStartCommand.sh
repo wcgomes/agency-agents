@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-INSTALL_SCRIPT="${AGENTS_WORKSPACE_POSTSTART_SCRIPT:-/usr/local/share/devcontainer-features/agents-workspace-install.sh}"
+INSTALL_SCRIPT="/usr/local/share/devcontainer-features/agents-workspace-install.sh"
 MARKER="${HOME}/.local/share/devcontainer-features/agents-workspace.done"
 
 TARGET_USER="${USER:-$(whoami)}"
@@ -14,26 +14,141 @@ export TOOL="${TOOL:-all}"
 export INCLUDEAGENCY="${INCLUDEAGENCY:-true}"
 export AUTOUPDATE="${AUTOUPDATE:-true}"
 
-echo "[agents-workspace-poststart] Checking installation script..."
+log() {
+  echo "[agents-workspace-poststart] $*"
+}
 
-if [ ! -f "$INSTALL_SCRIPT" ]; then
-    echo "[agents-workspace-poststart] Installation script not found at $INSTALL_SCRIPT"
-    exit 0
-fi
+fail() {
+  echo "[agents-workspace-poststart] ERROR: $*" >&2
+  exit 1
+}
+
+get_remote_commit() {
+  local repo="$1"
+  curl -fsSL "https://api.github.com/repos/$repo/commits/main" 2>/dev/null | \
+    grep -o '"sha": "[a-f0-9]*' | cut -d'"' -f4 | cut -c1-7
+}
+
+download_install_script() {
+  log "Downloading install script..."
+  local tmp_script
+  tmp_script="$(mktemp /tmp/agents-workspace-install-XXXXXX.sh)"
+  if command -v curl >/dev/null 2>&1; then
+    curl -fsSL "https://raw.githubusercontent.com/wcgomes/agents-workspace/main/tools/install.sh" -o "$tmp_script" \
+      || fail "Failed to download install.sh"
+  else
+    wget -qO "$tmp_script" "https://raw.githubusercontent.com/wcgomes/agents-workspace/main/tools/install.sh" \
+      || fail "Failed to download install.sh"
+  fi
+  chmod +x "$tmp_script"
+  mv "$tmp_script" "$INSTALL_SCRIPT"
+  log "Install script downloaded"
+}
+
+do_install() {
+  log "Starting installation for user '$TARGET_USER'..."
+
+  local marker_dir="/usr/local/share/devcontainer-features"
+  local tool="${TOOL:-all}"
+  local includeAgency="${INCLUDEAGENCY:-true}"
+  local marker_file="$marker_dir/agents-workspace-v1-${TARGET_USER}.done"
+  local commit_file="$marker_dir/agents-workspace-v1.commit"
+  local agency_commit_file="$marker_dir/agency-agents-v1.commit"
+  local tool_marker="$marker_dir/agents-workspace-v1-${tool}-${TARGET_USER}.done"
+
+  local TARGET_HOME
+  TARGET_HOME="$(getent passwd "$TARGET_USER" | cut -d: -f6)"
+  [ -z "$TARGET_HOME" ] && TARGET_HOME="/home/$TARGET_USER"
+
+  local tmp_dir
+  tmp_dir="$(mktemp -d /tmp/agents-workspace-XXXXXX)"
+  CLEANUP_DIR="$tmp_dir"
+  cleanup() {
+    rm -rf "$CLEANUP_DIR"
+  }
+  trap cleanup EXIT
+
+  mkdir -p "$marker_dir"
+
+  local install_script="$INSTALL_SCRIPT"
+  log "Running install script..."
+  export HOME="$TARGET_HOME"
+  bash "$install_script" --all || log "Install completed with warnings"
+
+  touch "$marker_file"
+  touch "$tool_marker"
+
+  local remote_final_commit
+  remote_final_commit="$(get_remote_commit "wcgomes/agents-workspace")"
+  [ -n "$remote_final_commit" ] && echo "$remote_final_commit" > "$commit_file" && log "Saved agents-workspace commit: $remote_final_commit"
+
+  if [ "$includeAgency" = "true" ]; then
+    local remote_agency_commit
+    remote_agency_commit="$(get_remote_commit "msitarzewski/agency-agents")"
+    [ -n "$remote_agency_commit" ] && echo "$remote_agency_commit" > "$agency_commit_file" && log "Saved agency-agents commit: $remote_agency_commit"
+  fi
+
+  log "Installation completed for tool '$tool'."
+}
 
 if [ -f "$MARKER" ]; then
-    echo "[agents-workspace-poststart] Marker found, skipping installation"
-    exit 0
+  if [ "$AUTOUPDATE" = "true" ]; then
+    log "Marker found, checking for updates..."
+    local commit_file="/usr/local/share/devcontainer-features/agents-workspace-v1.commit"
+    local agency_commit_file="/usr/local/share/devcontainer-features/agency-agents-v1.commit"
+    local includeAgency="$INCLUDEAGENCY"
+
+    if [ -f "$commit_file" ] && [ -s "$commit_file" ]; then
+      local installed_agents_workspace_commit
+      installed_agents_workspace_commit="$(cat "$commit_file")"
+      if [ -n "$installed_agents_workspace_commit" ]; then
+        local remote_agents_workspace_commit
+        remote_agents_workspace_commit="$(get_remote_commit "wcgomes/agents-workspace")"
+
+        local needs_update=false
+        if [ -n "$remote_agents_workspace_commit" ] && [ "$remote_agents_workspace_commit" != "$installed_agents_workspace_commit" ]; then
+          log "agents-workspace update available ($installed_agents_workspace_commit → $remote_agents_workspace_commit)"
+          needs_update=true
+        fi
+
+        if [ "$includeAgency" = "true" ] && [ -f "$agency_commit_file" ]; then
+          local installed_agency_agents_commit
+          installed_agency_agents_commit="$(cat "$agency_commit_file")"
+          if [ -n "$installed_agency_agents_commit" ]; then
+            local remote_agency_agents_commit
+            remote_agency_agents_commit="$(get_remote_commit "msitarzewski/agency-agents")"
+            if [ -n "$remote_agency_agents_commit" ] && [ "$remote_agency_agents_commit" != "$installed_agency_agents_commit" ]; then
+              log "agency-agents update available ($installed_agency_agents_commit → $remote_agency_agents_commit)"
+              needs_update=true
+            fi
+          fi
+        fi
+
+        if [ "$needs_update" = "true" ]; then
+          log "Updates available, updating..."
+          download_install_script
+          rm -f "$MARKER"
+          rm -f "$commit_file"
+          [ "$includeAgency" = "true" ] && rm -f "$agency_commit_file"
+          do_install
+          mkdir -p "$(dirname "$MARKER")"
+          touch "$MARKER"
+          log "Update complete"
+          exit 0
+        fi
+      fi
+    fi
+    log "Already on latest version"
+  else
+    log "Marker found, autoupdate disabled, skipping"
+  fi
+  exit 0
 fi
 
-if [ "$(id -u)" -eq 0 ] && [ "$TARGET_USER" != "root" ]; then
-    echo "[agents-workspace-poststart] Running installation script as user $TARGET_USER"
-    su - "$TARGET_USER" -c "bash $INSTALL_SCRIPT"
-else
-    echo "[agents-workspace-poststart] Running installation script"
-    bash "$INSTALL_SCRIPT"
-fi
+log "First installation..."
+download_install_script
+do_install
 
 mkdir -p "$(dirname "$MARKER")"
 touch "$MARKER"
-echo "[agents-workspace-poststart] Installation complete, marker created at $MARKER"
+log "Installation complete, marker created at $MARKER"

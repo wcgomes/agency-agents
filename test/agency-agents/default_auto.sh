@@ -3,7 +3,13 @@ set -e
 
 source dev-container-features-test-lib
 
-check "marker file exists for default auto install" bash -c \
-    "ls /usr/local/share/devcontainer-features/agency-agents-v1*.done 2>/dev/null | grep -q ."
+check "postStartCommand script exists" bash -c \
+    "ls /usr/local/share/devcontainer-features/agency-agents-postStartCommand.sh 2>/dev/null | grep -q ."
+
+check "user marker exists" bash -c \
+    "ls ~/.local/share/devcontainer-features/agency-agents.done 2>/dev/null | grep -q ."
+
+check "commit file exists" bash -c \
+    "ls /usr/local/share/devcontainer-features/agency-agents-v1.commit 2>/dev/null | grep -q ."
 
 reportResults

@@ -3,7 +3,7 @@ set -e
 
 source dev-container-features-test-lib
 
-check "marker file exists for autoupdate disabled" bash -c \
-    "ls /usr/local/share/devcontainer-features/agents-workspace-v1*.done 2>/dev/null | grep -q ."
+check "autoupdate disabled - user marker exists" bash -c \
+    "ls ~/.local/share/devcontainer-features/agents-workspace.done 2>/dev/null | grep -q ."
 
 reportResults
