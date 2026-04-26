@@ -138,6 +138,7 @@ esac
 
 detect_user() {
   local user=""
+
   if [ -n "${_REMOTE_USER:-}" ]; then
     user="$_REMOTE_USER"
   elif [ -n "$USERNAME" ]; then
@@ -148,13 +149,25 @@ detect_user() {
     [ -z "$user" ] && user="vscode"
   fi
 
-  if [ -d "/home/$user" ]; then
-    echo "$user"
-  elif [ -d "/root" ] && [ "$user" = "root" ]; then
-    getent passwd | cut -d: -f1 | grep -v "^root$" | head -1 || echo "vscode"
-  else
-    echo "$user"
+  local valid_users
+  valid_users="$(getent passwd | awk -F: 'BEGIN {first=""} $3 >= 1000 && $1 !~ /^(nobody|nfsnobody)$/ {first=$1; exit} END {print first}')" || true
+
+  if [ -n "$user" ]; then
+    local user_shell
+    user_shell="$(getent passwd "$user" | cut -d: -f7)" || true
+    case "$user_shell" in
+      */nologin|*/false)
+        user="$valid_users"
+        ;;
+    esac
   fi
+
+  if [ -z "$user" ] || [ ! -d "/home/$user" ]; then
+    user="$valid_users"
+  fi
+
+  [ -z "$user" ] && user="vscode"
+  echo "$user"
 }
 
 ensure_prerequisites

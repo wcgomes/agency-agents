@@ -157,23 +157,32 @@ esac
 
 detect_user() {
   local user=""
+  local valid_user
+
+  valid_user="$(getent passwd | awk -F: '$3 >= 1000 && $1 !~ /^(nobody|nfsnobody|daemon)$/ {print $1; exit 0}')" || true
+  [ -z "$valid_user" ] && valid_user="root"
+
   if [ -n "${_REMOTE_USER:-}" ]; then
     user="$_REMOTE_USER"
   elif [ -n "$USERNAME" ]; then
     user="$USERNAME"
-  else
-    user="$(getent passwd 1000 | cut -d: -f1)" || true
-    [ -z "$user" ] && user="$(whoami 2>/dev/null)" || true
-    [ -z "$user" ] && user="node"
   fi
 
-  if [ -d "/home/$user" ]; then
-    echo "$user"
-  elif [ -d "/root" ] && [ "$user" = "root" ]; then
-    getent passwd | cut -d: -f1 | grep -v "^root$" | head -1 || echo "vscode"
-  else
-    echo "$user"
+  if [ -n "$user" ]; then
+    local user_shell
+    user_shell="$(getent passwd "$user" 2>/dev/null | cut -d: -f7)" || true
+    case "$user_shell" in
+      */nologin|*/false|"")
+        user="$valid_user"
+        ;;
+    esac
   fi
+
+  if [ -z "$user" ]; then
+    user="$valid_user"
+  fi
+
+  echo "$user"
 }
 
 TARGET_USER="$(detect_user)"
