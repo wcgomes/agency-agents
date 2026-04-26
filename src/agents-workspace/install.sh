@@ -146,6 +146,9 @@ tool="${TOOL:-${FEATURE_OPTION_TOOL:-all}}"
 includeAgency="${AGENTS_WORKSPACE_INCLUDE_AGENCY:-${INCLUDEAGENCY:-${FEATURE_OPTION_INCLUDE_AGENCY:-true}}}"
 autoupdate="${AGENTS_WORKSPACE_AUTOUPDATE:-${AUTOUPDATE:-true}}"
 
+# Determine target username (allow overriding via env). Use _REMOTE_USER if provided by devcontainer.
+USERNAME="${USERNAME:-${_REMOTE_USER:-node}}"
+
 case "$tool" in
   "")
     fail "Option 'tool' cannot be empty."
@@ -166,10 +169,11 @@ ensure_prerequisites
 
 marker_dir="/usr/local/share/devcontainer-features"
 
-marker_file="$marker_dir/agents-workspace-v1.done"
+# Use a per-user marker so build-time (root) installs don't block user postStart installs
+marker_file="$marker_dir/agents-workspace-v1-${USERNAME}.done"
 commit_file="$marker_dir/agents-workspace-v1.commit"
 agency_commit_file="$marker_dir/agency-agents-v1.commit"
-tool_marker="$marker_dir/agents-workspace-v1-${tool}.done"
+tool_marker="$marker_dir/agents-workspace-v1-${tool}-${USERNAME}.done"
 
 if [ -f "$marker_file" ] || [ -f "$tool_marker" ]; then
   log "Installation already completed for tool '$tool'."
@@ -179,6 +183,14 @@ if [ -f "$marker_file" ] || [ -f "$tool_marker" ]; then
     rm -f "$commit_file"
     [ "$includeAgency" = "true" ] && rm -f "$agency_commit_file"
   else
+    if [ ! -f "$commit_file" ] || [ ! -s "$commit_file" ]; then
+      remote_final_commit="$(get_remote_commit "wcgomes/agents-workspace")"
+      [ -n "$remote_final_commit" ] && echo "$remote_final_commit" > "$commit_file"
+      if [ "$includeAgency" = "true" ]; then
+        remote_agency_commit="$(get_remote_commit "msitarzewski/agency-agents")"
+        [ -n "$remote_agency_commit" ] && echo "$remote_agency_commit" > "$agency_commit_file"
+      fi
+    fi
     exit 0
   fi
 fi
@@ -224,27 +236,17 @@ if [ "$includeAgency" != "true" ]; then
 fi
 
 log "Running install.sh $install_args..."
-if sh "$install_script" $install_args; then
-  log "Install completed successfully."
-else
-  log "Install completed with warnings (some tools may not be available)."
-fi
+bash "$install_script" $install_args || log "Install completed with warnings (some tools may not be available)."
 
 touch "$marker_file"
 touch "$tool_marker"
 
 remote_final_commit="$(get_remote_commit "wcgomes/agents-workspace")"
-if [ -n "$remote_final_commit" ]; then
-  echo "$remote_final_commit" > "$commit_file"
-  log "Saved agents-workspace commit: $remote_final_commit"
-fi
+[ -n "$remote_final_commit" ] && echo "$remote_final_commit" > "$commit_file" && log "Saved agents-workspace commit: $remote_final_commit"
 
 if [ "$includeAgency" = "true" ]; then
   remote_agency_commit="$(get_remote_commit "msitarzewski/agency-agents")"
-  if [ -n "$remote_agency_commit" ]; then
-    echo "$remote_agency_commit" > "$agency_commit_file"
-    log "Saved agency-agents commit: $remote_agency_commit"
-  fi
+  [ -n "$remote_agency_commit" ] && echo "$remote_agency_commit" > "$agency_commit_file" && log "Saved agency-agents commit: $remote_agency_commit"
 fi
 
 cp "$0" "$marker_dir/agents-workspace-install.sh"
