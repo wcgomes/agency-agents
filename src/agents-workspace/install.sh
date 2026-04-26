@@ -1,5 +1,4 @@
 #!/bin/sh
-
 set -eu
 
 log() {
@@ -71,224 +70,23 @@ ensure_prerequisites() {
     fail "Missing dependencies: $missing. Rebuild as root or preinstall them in the base image."
   fi
 
-  log "Installing missing dependencies:$missing"
+  log "Installing missing dependencies: $missing"
   install_packages $missing
 
-  command -v unzip >/dev/null 2>&1 || fail "Dependency installation failed: unzip is still missing"
-  command -v curl >/dev/null 2>&1 || command -v wget >/dev/null 2>&1 || fail "Dependency installation failed: curl/wget are still missing"
-  [ -f /etc/ssl/certs/ca-certificates.crt ] || fail "Dependency installation failed: CA certificates are still missing"
+  command -v unzip >/dev/null 2>&1 || fail "Dependency installation failed: unzip"
+  command -v curl >/dev/null 2>&1 || command -v wget >/dev/null 2>&1 || fail "Dependency installation failed: curl/wget"
+  [ -f /etc/ssl/certs/ca-certificates.crt ] || fail "Dependency installation failed: CA certificates"
 }
-
-get_remote_commit() {
-  local repo="$1"
-  curl -fsSL "https://api.github.com/repos/$repo/commits/main" 2>/dev/null | \
-    grep -o '"sha": "[a-f0-9]*' | cut -d'"' -f4 | cut -c1-7
-}
-
-autoupdate_check() {
-  if [ "$autoupdate" != "true" ]; then
-    return 0
-  fi
-
-  if [ ! -f "$commit_file" ]; then
-    log "Autoupdate: skipped (no commit file found)"
-    return 0
-  fi
-
-  installed_agents_workspace_commit="$(cat "$commit_file")"
-  if [ -z "$installed_agents_workspace_commit" ]; then
-    log "Autoupdate: skipped (empty commit file)"
-    return 0
-  fi
-
-  log "Autoupdate: checking for updates..."
-
-  remote_agents_workspace_commit="$(get_remote_commit "wcgomes/agents-workspace")"
-  if [ -z "$remote_agents_workspace_commit" ]; then
-    log "Autoupdate: skipped (unable to fetch agents-workspace commit)"
-    return 0
-  fi
-
-  needs_update=false
-
-  if [ "$remote_agents_workspace_commit" != "$installed_agents_workspace_commit" ]; then
-    log "Autoupdate: agents-workspace has updates ($installed_agents_workspace_commit → $remote_agents_workspace_commit)"
-    needs_update=true
-  fi
-
-  if [ "$includeAgency" = "true" ]; then
-    if [ -f "$agency_commit_file" ]; then
-      installed_agency_agents_commit="$(cat "$agency_commit_file")"
-      if [ -n "$installed_agency_agents_commit" ]; then
-        remote_agency_agents_commit="$(get_remote_commit "msitarzewski/agency-agents")"
-        if [ -n "$remote_agency_agents_commit" ] && [ "$remote_agency_agents_commit" != "$installed_agency_agents_commit" ]; then
-          log "Autoupdate: agency-agents has updates ($installed_agency_agents_commit → $remote_agency_agents_commit)"
-          needs_update=true
-        fi
-      fi
-    fi
-  fi
-
-  if [ "$needs_update" = "false" ]; then
-    log "Autoupdate: already on latest version (agents-workspace: $remote_agents_workspace_commit)"
-    return 0
-  fi
-
-  log "Autoupdate: new versions available, updating..."
-
-  rm -f "$marker_file"
-  rm -f "$commit_file"
-  [ "$includeAgency" = "true" ] && rm -f "$agency_commit_file"
-  return 1
-}
-
-tool="${TOOL:-${FEATURE_OPTION_TOOL:-all}}"
-includeAgency="${AGENTS_WORKSPACE_INCLUDE_AGENCY:-${INCLUDEAGENCY:-${FEATURE_OPTION_INCLUDE_AGENCY:-true}}}"
-autoupdate="${AGENTS_WORKSPACE_AUTOUPDATE:-${AUTOUPDATE:-true}}"
-
-case "$tool" in
-  "")
-    fail "Option 'tool' cannot be empty."
-    ;;
-  *[!a-zA-Z0-9_-]*)
-    fail "Option 'tool' contains invalid characters: '$tool'."
-    ;;
-esac
-
-detect_user() {
-  local user=""
-  local valid_user
-
-  valid_user="$(getent passwd | awk -F: '$3 >= 1000 && $1 !~ /^(nobody|nfsnobody|daemon)$/ {print $1; exit 0}')" || true
-  [ -z "$valid_user" ] && valid_user="root"
-
-  if [ -n "${_REMOTE_USER:-}" ]; then
-    user="$_REMOTE_USER"
-  elif [ -n "$USERNAME" ]; then
-    user="$USERNAME"
-  fi
-
-  if [ -n "$user" ]; then
-    local user_shell
-    user_shell="$(getent passwd "$user" 2>/dev/null | cut -d: -f7)" || true
-    case "$user_shell" in
-      */nologin|*/false|"")
-        user="$valid_user"
-        ;;
-    esac
-  fi
-
-  if [ -z "$user" ]; then
-    user="$valid_user"
-  fi
-
-  echo "$user"
-}
-
-TARGET_USER="$(detect_user)"
-TARGET_HOME="$(getent passwd "$TARGET_USER" | cut -d: -f6)"
-[ -z "$TARGET_HOME" ] && TARGET_HOME="/home/$TARGET_USER"
-
-case "$includeAgency" in
-  true|false) ;;
-  *)
-    fail "Option 'includeAgency' must be 'true' or 'false'."
-    ;;
-esac
 
 ensure_prerequisites
 
 marker_dir="/usr/local/share/devcontainer-features"
-
-# Use a per-user marker so build-time (root) installs don't block user postStart installs
-marker_file="$marker_dir/agents-workspace-v1-${TARGET_USER}.done"
-commit_file="$marker_dir/agents-workspace-v1.commit"
-agency_commit_file="$marker_dir/agency-agents-v1.commit"
-tool_marker="$marker_dir/agents-workspace-v1-${tool}-${TARGET_USER}.done"
-
-if [ -f "$marker_file" ] || [ -f "$tool_marker" ]; then
-  log "Installation already completed for tool '$tool'."
-  if ! autoupdate_check; then
-    rm -f "$marker_file"
-    rm -f "$tool_marker"
-    rm -f "$commit_file"
-    [ "$includeAgency" = "true" ] && rm -f "$agency_commit_file"
-  else
-    if [ ! -f "$commit_file" ] || [ ! -s "$commit_file" ]; then
-      remote_final_commit="$(get_remote_commit "wcgomes/agents-workspace")"
-      [ -n "$remote_final_commit" ] && echo "$remote_final_commit" > "$commit_file"
-      if [ "$includeAgency" = "true" ]; then
-        remote_agency_commit="$(get_remote_commit "msitarzewski/agency-agents")"
-        [ -n "$remote_agency_commit" ] && echo "$remote_agency_commit" > "$agency_commit_file"
-      fi
-    fi
-    exit 0
-  fi
-fi
-
-if [ -f "$commit_file" ]; then
-  autoupdate_check || true
-fi
-
-log "Installing agents-workspace..."
-
-tmp_dir="$(mktemp -d /tmp/agents-workspace-XXXXXX)"
-cleanup() {
-  rm -rf "$tmp_dir"
-}
-trap cleanup EXIT
-
 mkdir -p "$marker_dir"
 
-install_script="$tmp_dir/install.sh"
-log "Downloading install.sh..."
-if command -v curl >/dev/null 2>&1; then
-  curl -fsSL "https://raw.githubusercontent.com/wcgomes/agents-workspace/main/tools/install.sh" -o "$install_script" \
-    || fail "Unable to download install.sh"
-else
-  wget -qO "$install_script" "https://raw.githubusercontent.com/wcgomes/agents-workspace/main/tools/install.sh" \
-    || fail "Unable to download install.sh"
-fi
-
-chmod +x "$install_script"
-
-install_args=""
-case "$tool" in
-  all)
-    install_args="--all"
-    ;;
-  opencode|claude|copilot|antigravity)
-    install_args="--$tool"
-    ;;
-esac
-
-if [ "$includeAgency" != "true" ]; then
-  install_args="$install_args --no-agency"
-fi
-
-log "Running install.sh $install_args..."
-export HOME="$TARGET_HOME"
-bash "$install_script" $install_args || log "Install completed with warnings (some tools may not be available)."
-
-touch "$marker_file"
-touch "$tool_marker"
-
-remote_final_commit="$(get_remote_commit "wcgomes/agents-workspace")"
-[ -n "$remote_final_commit" ] && echo "$remote_final_commit" > "$commit_file" && log "Saved agents-workspace commit: $remote_final_commit"
-
-if [ "$includeAgency" = "true" ]; then
-  remote_agency_commit="$(get_remote_commit "msitarzewski/agency-agents")"
-  [ -n "$remote_agency_commit" ] && echo "$remote_agency_commit" > "$agency_commit_file" && log "Saved agency-agents commit: $remote_agency_commit"
-fi
-
-cp "$0" "$marker_dir/agents-workspace-install.sh"
-chmod +x "$marker_dir/agents-workspace-install.sh"
-
-# Copy postStartCommand.sh
 poststart_script="$(dirname "$0")/postStartCommand.sh"
 if [ -f "$poststart_script" ]; then
   cp "$poststart_script" "$marker_dir/agents-workspace-postStartCommand.sh"
   chmod +x "$marker_dir/agents-workspace-postStartCommand.sh"
 fi
 
-log "Installation completed for tool '$tool'."
+log "Scripts copied. Installation will run in postStartCommand."

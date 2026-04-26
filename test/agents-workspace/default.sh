@@ -3,7 +3,13 @@ set -e
 
 source dev-container-features-test-lib
 
-check "marker file exists for default install" bash -c \
-    "ls /usr/local/share/devcontainer-features/agents-workspace-v1*.done 2>/dev/null | grep -q ."
+check "postStartCommand script exists" bash -c \
+    "ls /usr/local/share/devcontainer-features/agents-workspace-postStartCommand.sh 2>/dev/null | grep -q ."
+
+check "user marker exists" bash -c \
+    "ls ~/.local/share/devcontainer-features/agents-workspace.done 2>/dev/null | grep -q ."
+
+check "commit file exists" bash -c \
+    "ls /usr/local/share/devcontainer-features/agents-workspace-v1.commit 2>/dev/null | grep -q ."
 
 reportResults
