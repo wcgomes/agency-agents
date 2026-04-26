@@ -16,7 +16,7 @@ export INCLUDEAGENCY="${INCLUDEAGENCY:-true}"
 export AUTOUPDATE="${AUTOUPDATE:-true}"
 
 log() {
-  echo "[agents-workspace-poststart] $*"
+  echo "[agents-workspace-poststart] $*" >&2
 }
 
 fail() {

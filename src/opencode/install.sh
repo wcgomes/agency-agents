@@ -2,7 +2,7 @@
 set -euo pipefail
 
 log() {
-  echo "[opencode] $*"
+  echo "[opencode] $*" >&2
 }
 
 fail() {
