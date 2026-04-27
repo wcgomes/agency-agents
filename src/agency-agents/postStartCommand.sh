@@ -136,28 +136,32 @@ do_install() {
   log "Installation completed for tool '$tool'."
 }
 
+check_for_updates() {
+  if [ -f "$COMMIT_FILE" ] && [ -s "$COMMIT_FILE" ]; then
+    local installed_commit
+    installed_commit="$(cat "$COMMIT_FILE")"
+    if [ -n "$installed_commit" ]; then
+      local remote_commit
+      remote_commit="$(get_remote_commit)"
+      if [ -n "$remote_commit" ] && [ "$remote_commit" != "$installed_commit" ]; then
+        log "Update available ($installed_commit → $remote_commit), updating..."
+        rm -f "$MARKER"
+        rm -f "$COMMIT_FILE"
+        do_install
+        mkdir -p "$(dirname "$MARKER")"
+        touch "$MARKER"
+        log "Update complete"
+        exit 0
+      fi
+    fi
+  fi
+  log "Already on latest version"
+}
+
 if [ -f "$MARKER" ]; then
   if [ "$AUTOUPDATE" = "true" ]; then
     log "Marker found, checking for updates..."
-    if [ -f "$COMMIT_FILE" ] && [ -s "$COMMIT_FILE" ]; then
-      local installed_commit
-      installed_commit="$(cat "$COMMIT_FILE")"
-      if [ -n "$installed_commit" ]; then
-        local remote_commit
-        remote_commit="$(get_remote_commit)"
-        if [ -n "$remote_commit" ] && [ "$remote_commit" != "$installed_commit" ]; then
-          log "Update available ($installed_commit → $remote_commit), updating..."
-          rm -f "$MARKER"
-          rm -f "$COMMIT_FILE"
-          do_install
-          mkdir -p "$(dirname "$MARKER")"
-          touch "$MARKER"
-          log "Update complete"
-          exit 0
-        fi
-      fi
-    fi
-    log "Already on latest version"
+    check_for_updates
   else
     log "Marker found, autoupdate disabled, skipping"
   fi
