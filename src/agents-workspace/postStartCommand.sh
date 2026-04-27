@@ -90,51 +90,55 @@ do_install() {
   log "Installation completed for tool '$tool'."
 }
 
+check_for_updates() {
+  local includeAgency="$INCLUDEAGENCY"
+
+  if [ -f "$COMMIT_FILE" ] && [ -s "$COMMIT_FILE" ]; then
+    local installed_agents_workspace_commit
+    installed_agents_workspace_commit="$(cat "$COMMIT_FILE")"
+    if [ -n "$installed_agents_workspace_commit" ]; then
+      local remote_agents_workspace_commit
+      remote_agents_workspace_commit="$(get_remote_commit "wcgomes/agents-workspace")"
+
+      local needs_update=false
+      if [ -n "$remote_agents_workspace_commit" ] && [ "$remote_agents_workspace_commit" != "$installed_agents_workspace_commit" ]; then
+        log "agents-workspace update available ($installed_agents_workspace_commit → $remote_agents_workspace_commit)"
+        needs_update=true
+      fi
+
+      if [ "$includeAgency" = "true" ] && [ -f "$AGENCY_COMMIT_FILE" ]; then
+        local installed_agency_agents_commit
+        installed_agency_agents_commit="$(cat "$AGENCY_COMMIT_FILE")"
+        if [ -n "$installed_agency_agents_commit" ]; then
+          local remote_agency_agents_commit
+          remote_agency_agents_commit="$(get_remote_commit "msitarzewski/agency-agents")"
+          if [ -n "$remote_agency_agents_commit" ] && [ "$remote_agency_agents_commit" != "$installed_agency_agents_commit" ]; then
+            log "agency-agents update available ($installed_agency_agents_commit → $remote_agency_agents_commit)"
+            needs_update=true
+          fi
+        fi
+      fi
+
+      if [ "$needs_update" = "true" ]; then
+        log "Updates available, updating..."
+        rm -f "$MARKER"
+        rm -f "$COMMIT_FILE"
+        [ "$includeAgency" = "true" ] && rm -f "$AGENCY_COMMIT_FILE"
+        do_install
+        mkdir -p "$(dirname "$MARKER")"
+        touch "$MARKER"
+        log "Update complete"
+        exit 0
+      fi
+    fi
+  fi
+  log "Already on latest version"
+}
+
 if [ -f "$MARKER" ]; then
   if [ "$AUTOUPDATE" = "true" ]; then
     log "Marker found, checking for updates..."
-    local includeAgency="$INCLUDEAGENCY"
-
-    if [ -f "$COMMIT_FILE" ] && [ -s "$COMMIT_FILE" ]; then
-      local installed_agents_workspace_commit
-      installed_agents_workspace_commit="$(cat "$COMMIT_FILE")"
-      if [ -n "$installed_agents_workspace_commit" ]; then
-        local remote_agents_workspace_commit
-        remote_agents_workspace_commit="$(get_remote_commit "wcgomes/agents-workspace")"
-
-        local needs_update=false
-        if [ -n "$remote_agents_workspace_commit" ] && [ "$remote_agents_workspace_commit" != "$installed_agents_workspace_commit" ]; then
-          log "agents-workspace update available ($installed_agents_workspace_commit → $remote_agents_workspace_commit)"
-          needs_update=true
-        fi
-
-        if [ "$includeAgency" = "true" ] && [ -f "$AGENCY_COMMIT_FILE" ]; then
-          local installed_agency_agents_commit
-          installed_agency_agents_commit="$(cat "$AGENCY_COMMIT_FILE")"
-          if [ -n "$installed_agency_agents_commit" ]; then
-            local remote_agency_agents_commit
-            remote_agency_agents_commit="$(get_remote_commit "msitarzewski/agency-agents")"
-            if [ -n "$remote_agency_agents_commit" ] && [ "$remote_agency_agents_commit" != "$installed_agency_agents_commit" ]; then
-              log "agency-agents update available ($installed_agency_agents_commit → $remote_agency_agents_commit)"
-              needs_update=true
-            fi
-          fi
-        fi
-
-        if [ "$needs_update" = "true" ]; then
-          log "Updates available, updating..."
-          rm -f "$MARKER"
-          rm -f "$COMMIT_FILE"
-          [ "$includeAgency" = "true" ] && rm -f "$AGENCY_COMMIT_FILE"
-          do_install
-          mkdir -p "$(dirname "$MARKER")"
-          touch "$MARKER"
-          log "Update complete"
-          exit 0
-        fi
-      fi
-    fi
-    log "Already on latest version"
+    check_for_updates
   else
     log "Marker found, autoupdate disabled, skipping"
   fi
